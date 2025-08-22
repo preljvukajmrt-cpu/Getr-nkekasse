@@ -3,6 +3,7 @@
 This small web app implements a Getränkekasse (drink fund) for the Toolbox Verein in Markdorf. It provides a simple interface for members to register drinks, track balances, and for an admin to manage the fund.
 
 ## Features
+test
 
 - Register members and record drink purchases
 - Track each member's balance
