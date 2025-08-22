@@ -47,9 +47,303 @@
           "amount": -1,
           "type": "purchase",
           "description": "Cola"
+        },
+        {
+          "date": "2025-08-22T22:55:17.276Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:19.867Z",
+          "amount": -6.66,
+          "type": "purchase",
+          "description": "pisse"
+        },
+        {
+          "date": "2025-08-22T22:55:25.542Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-22T22:55:28.306Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-22T22:55:29.956Z",
+          "amount": -1,
+          "type": "purchase",
+          "description": "Cola"
+        },
+        {
+          "date": "2025-08-22T22:55:31.333Z",
+          "amount": -6.66,
+          "type": "purchase",
+          "description": "pisse"
+        },
+        {
+          "date": "2025-08-22T22:55:33.115Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:33.754Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:34.227Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:34.401Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:34.556Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:34.729Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:34.928Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:35.085Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:35.267Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:35.431Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:35.606Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:35.778Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:35.970Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:36.158Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:36.339Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:36.537Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:36.720Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:36.912Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:37.096Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:37.288Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:37.462Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:37.655Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:37.833Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:38.036Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:38.226Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:38.421Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:38.613Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:38.786Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:38.990Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:39.173Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:39.377Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:39.550Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:39.723Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:39.902Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:40.079Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:40.250Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:40.413Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:40.603Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:40.782Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:40.958Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:42.057Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:42.235Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T22:55:45.239Z",
+          "amount": -222,
+          "type": "purchase",
+          "description": "hammerwasser"
         }
       ],
-      "balance": 33
+      "balance": 8.180000000000007
     },
     {
       "username": "test2",
@@ -302,15 +596,124 @@
           "amount": -8,
           "type": "transfer",
           "description": "Gesendet an test1"
+        },
+        {
+          "date": "2025-08-22T23:07:21.195Z",
+          "amount": -5,
+          "type": "transfer",
+          "description": "Gesendet an test3"
+        },
+        {
+          "date": "2025-08-22T23:13:32.398Z",
+          "amount": -6.66,
+          "type": "purchase",
+          "description": "pisse"
+        },
+        {
+          "date": "2025-08-22T23:13:34.587Z",
+          "amount": -1,
+          "type": "purchase",
+          "description": "Cola"
+        },
+        {
+          "date": "2025-08-22T23:13:40.381Z",
+          "amount": 10,
+          "type": "deposit",
+          "description": "Einzahlung"
+        },
+        {
+          "date": "2025-08-22T23:13:53.514Z",
+          "amount": -50,
+          "type": "withdraw",
+          "description": "Auszahlung"
+        },
+        {
+          "date": "2025-08-22T23:13:58.893Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T23:13:59.096Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T23:13:59.269Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T23:13:59.455Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T23:13:59.639Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T23:13:59.827Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T23:14:00.056Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T23:14:00.230Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
         }
       ],
-      "balance": 59.5
+      "balance": 46.84
     },
     {
       "username": "test3",
       "pin": "3333",
-      "consumption": [],
-      "balance": 3
+      "consumption": [
+        {
+          "date": "2025-08-22T22:57:11.060Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-22T22:57:12.282Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-22T22:57:13.311Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-22T22:57:22.825Z",
+          "amount": 60,
+          "type": "deposit",
+          "description": "Einzahlung"
+        },
+        {
+          "date": "2025-08-22T23:07:21.195Z",
+          "amount": 5,
+          "type": "transfer",
+          "description": "Erhalten von test2"
+        }
+      ],
+      "balance": 66.5
     },
     {
       "username": "test4",
