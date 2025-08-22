@@ -29,12 +29,31 @@
     {
       "username": "test1",
       "pin": "1111",
-      "consumption": [],
-      "balance": 20
+      "consumption": [
+        {
+          "date": "2025-08-22T21:26:29.290Z",
+          "amount": 6,
+          "type": "transfer",
+          "description": "Erhalten von test2"
+        },
+        {
+          "date": "2025-08-22T21:30:47.113Z",
+          "amount": 8,
+          "type": "transfer",
+          "description": "Erhalten von test2"
+        },
+        {
+          "date": "2025-08-22T21:32:44.338Z",
+          "amount": -1,
+          "type": "purchase",
+          "description": "Cola"
+        }
+      ],
+      "balance": 33
     },
     {
       "username": "test2",
-      "pin": "3333",
+      "pin": "2222",
       "consumption": [
         {
           "drink": "döner",
@@ -271,9 +290,111 @@
           "amount": 5,
           "type": "purchase",
           "description": "kake"
+        },
+        {
+          "date": "2025-08-22T21:26:29.290Z",
+          "amount": -6,
+          "type": "transfer",
+          "description": "Gesendet an test1"
+        },
+        {
+          "date": "2025-08-22T21:30:47.113Z",
+          "amount": -8,
+          "type": "transfer",
+          "description": "Gesendet an test1"
         }
       ],
-      "balance": 73.5
+      "balance": 59.5
+    },
+    {
+      "username": "test3",
+      "pin": "3333",
+      "consumption": [],
+      "balance": 3
+    },
+    {
+      "username": "test4",
+      "pin": "4444",
+      "consumption": [],
+      "balance": 4
+    },
+    {
+      "username": "test5",
+      "pin": "5555",
+      "consumption": [],
+      "balance": 5
+    },
+    {
+      "username": "martin",
+      "pin": "0000",
+      "consumption": [],
+      "balance": 0
+    },
+    {
+      "username": "stephan",
+      "pin": "0000",
+      "consumption": [],
+      "balance": 0
+    },
+    {
+      "username": "max mustermann",
+      "pin": "0000",
+      "consumption": [],
+      "balance": 0
+    },
+    {
+      "username": "steffi",
+      "pin": "0000",
+      "consumption": [],
+      "balance": 0
+    },
+    {
+      "username": "stephano",
+      "pin": "0000",
+      "consumption": [],
+      "balance": 0
+    },
+    {
+      "username": "martina",
+      "pin": "0000",
+      "consumption": [],
+      "balance": 0
+    },
+    {
+      "username": "martino",
+      "pin": "0000",
+      "consumption": [],
+      "balance": 0
+    },
+    {
+      "username": "peter",
+      "pin": "0000",
+      "consumption": [],
+      "balance": 0
+    },
+    {
+      "username": "Donald J Trump",
+      "pin": "0000",
+      "consumption": [],
+      "balance": 0
+    },
+    {
+      "username": "henri",
+      "pin": "5555",
+      "consumption": [],
+      "balance": 5
+    },
+    {
+      "username": "oma",
+      "pin": "5555",
+      "consumption": [],
+      "balance": 0
+    },
+    {
+      "username": "dedlef",
+      "pin": "2222",
+      "consumption": [],
+      "balance": 3
     }
   ],
   "admin": {

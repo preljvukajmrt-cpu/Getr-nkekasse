@@ -152,6 +152,28 @@ router.post('/consume', (req, res) => {
   res.json({ success: true, balance: user.balance });
 });
 
+// Transfer: von einem Nutzer zu einem anderen
+router.post('/transfer', (req, res) => {
+  const { from, to, amount } = req.body;
+  if (!from || !to || typeof amount !== 'number' || amount <= 0) return res.status(400).json({ error: 'Ungültige Eingabe' });
+  const data = readData();
+  const sender = data.users.find(u => u.username === from);
+  const receiver = data.users.find(u => u.username === to);
+  if (!sender || !receiver) return res.status(404).json({ error: 'Sender oder Empfänger nicht gefunden' });
+  // prüfe Limits
+  const newSenderBal = (sender.balance || 0) - amount;
+  if (newSenderBal < -10) return res.status(400).json({ error: 'Nicht genug Guthaben' });
+  sender.balance = newSenderBal;
+  receiver.balance = (receiver.balance || 0) + amount;
+  if (!Array.isArray(sender.consumption)) sender.consumption = [];
+  if (!Array.isArray(receiver.consumption)) receiver.consumption = [];
+  const now = new Date().toISOString();
+  sender.consumption.push({ date: now, amount: -amount, type: 'transfer', description: `Gesendet an ${to}` });
+  receiver.consumption.push({ date: now, amount: amount, type: 'transfer', description: `Erhalten von ${from}` });
+  writeData(data);
+  res.json({ success: true, balance: sender.balance });
+});
+
 // --- Admin ---
 router.post('/admin/login', (req, res) => {
   const { password } = req.body;

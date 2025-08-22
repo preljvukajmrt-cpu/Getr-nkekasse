@@ -55,8 +55,15 @@ function showPinModal(labelText) {
 		input.addEventListener("keydown", keyHandler);
 	});
 }
-// User-Grid laden und anzeigen
-async function loadUserGrid() {
+// User-Grid laden und anzeigen (paged)
+let usersCache = [];
+let usersPerPage = 16; // number of users shown per page (adjust as needed)
+let usersCurrentPage = 1;
+let usersTotalPages = 1;
+let usersPageResetTimer = null;
+const USERS_PAGE_RESET_MS = 10000; // 10s - return to page 1
+
+async function loadUserGrid(page = 1) {
 	const res = await fetch('/api/allusers');
 	let users = await res.json();
 	// Sortiere nach letztem Kauf (neuester zuerst)
@@ -65,10 +72,15 @@ async function loadUserGrid() {
 		const bLast = b.consumption && b.consumption.length ? new Date(b.consumption[b.consumption.length-1].date) : new Date(0);
 		return bLast - aLast;
 	});
+	usersCache = users;
+	// simple paging
+	usersTotalPages = Math.max(1, Math.ceil(usersCache.length / usersPerPage));
+	usersCurrentPage = Math.min(Math.max(1, page), usersTotalPages);
+	const start = (usersCurrentPage - 1) * usersPerPage;
+	const pageUsers = usersCache.slice(start, start + usersPerPage);
 	const grid = $("user-grid");
 	grid.innerHTML = "";
-	let selectedBtn = null;
-	users.slice(0, 16).forEach(user => {
+	pageUsers.forEach(user => {
 		const btn = document.createElement("button");
 		btn.className = "user-tile";
 		btn.textContent = user.username;
@@ -78,15 +90,60 @@ async function loadUserGrid() {
 			// Markiere Auswahl
 			document.querySelectorAll('.user-tile.selected').forEach(b => b.classList.remove('selected'));
 			btn.classList.add('selected');
+			// reset page-reset timer when user picks
+			startUsersPageResetTimer();
 		};
 		grid.appendChild(btn);
 	});
+	// ensure the grid always has usersPerPage tiles (fill with invisible placeholders)
+	const filled = pageUsers.length;
+	if (filled < usersPerPage) {
+		const need = usersPerPage - filled;
+		for (let i = 0; i < need; i++) {
+			const ph = document.createElement('div');
+			ph.className = 'user-tile placeholder';
+			// keep DOM size but no content
+			ph.innerHTML = '&nbsp;';
+			grid.appendChild(ph);
+		}
+	}
+	// update pager display
+	const disp = $("users-page-display");
+	if (disp) disp.textContent = usersCurrentPage + ' / ' + usersTotalPages;
+	// ensure pager buttons exist and are wired
+	const prev = $("users-prev");
+	const next = $("users-next");
+	if (prev && !prev._wired) { prev.addEventListener('click', () => { goUsersPage(usersCurrentPage - 1); }); prev._wired = true; }
+	if (next && !next._wired) { next.addEventListener('click', () => { goUsersPage(usersCurrentPage + 1); }); next._wired = true; }
+	// (re)start page reset timer when page != 1
+	if (usersCurrentPage !== 1) startUsersPageResetTimer(); else clearUsersPageResetTimer();
 }
 
-// Geld auszahlen
+function goUsersPage(page) {
+	const target = Math.min(Math.max(1, page), usersTotalPages);
+	if (target === usersCurrentPage) return;
+	usersCurrentPage = target;
+	loadUserGrid(usersCurrentPage);
+}
+
+function clearUsersPageResetTimer() {
+	if (usersPageResetTimer) { clearTimeout(usersPageResetTimer); usersPageResetTimer = null; }
+}
+
+function startUsersPageResetTimer() {
+	clearUsersPageResetTimer();
+	if (usersCurrentPage === 1) return;
+	usersPageResetTimer = setTimeout(() => {
+		usersCurrentPage = 1;
+		loadUserGrid(1);
+		usersPageResetTimer = null;
+	}, USERS_PAGE_RESET_MS);
+}
+
+// Geld auszahlen (verwendet jetzt #amount)
 $("withdraw-btn").onclick = async function() {
 	const username = window.localStorage.getItem("username");
-	const amount = parseFloat($("withdraw-amount").value);
+	const amount = parseFloat($("amount").value);
 	if (!username || isNaN(amount) || amount <= 0) {
 		alert("Bitte gültigen Betrag eingeben.");
 		return;
@@ -98,7 +155,7 @@ $("withdraw-btn").onclick = async function() {
 	});
 	const data = await res.json();
 	if (data.success) {
-		$("withdraw-amount").value = "";
+		$("amount").value = "";
 		loadBalance();
 		loadTransactions();
 	} else {
@@ -109,9 +166,126 @@ $("withdraw-btn").onclick = async function() {
 // Hilfsfunktionen
 function $(id) { return document.getElementById(id); }
 
+// --- Auto-Logout (15 Sekunden Inaktivität) with visual progress ---
+let autoLogoutTimer = null;
+let autoLogoutInterval = null;
+const AUTO_LOGOUT_MS = 15000; // 15 Sekunden
+function startAutoLogoutTimer() {
+	clearAutoLogoutTimer();
+	console.log('[AutoLogout] start timer for', AUTO_LOGOUT_MS, 'ms');
+	const start = Date.now();
+	const progressEl = document.querySelector('#logout-btn .logout-progress');
+	if (progressEl) progressEl.style.width = '0%';
+	autoLogoutTimer = setTimeout(() => {
+		console.log('[AutoLogout] timeout fired — performing logout');
+		if (autoLogoutInterval) { clearInterval(autoLogoutInterval); autoLogoutInterval = null; }
+		if (progressEl) progressEl.style.width = '100%';
+		doLogout('Automatisch ausgeloggt (Inaktivität).');
+	}, AUTO_LOGOUT_MS);
+	// start interval to update progress bar
+	if (autoLogoutInterval) clearInterval(autoLogoutInterval);
+	autoLogoutInterval = setInterval(() => {
+		const elapsed = Date.now() - start;
+		const pct = Math.min(100, (elapsed / AUTO_LOGOUT_MS) * 100);
+		if (progressEl) progressEl.style.width = pct + '%';
+	}, 100);
+}
+function resetAutoLogoutTimer() {
+	// nur wenn main-section sichtbar ist
+	const mainVisible = $("main-section") && $("main-section").style.display === 'block';
+	if (!mainVisible) return;
+	// restart timer and reset visual
+	startAutoLogoutTimer();
+	const progressEl = document.querySelector('#logout-btn .logout-progress');
+	if (progressEl) progressEl.style.width = '0%';
+}
+function clearAutoLogoutTimer() {
+	if (autoLogoutTimer) {
+		clearTimeout(autoLogoutTimer);
+		autoLogoutTimer = null;
+		console.log('[AutoLogout] cleared');
+	}
+	if (autoLogoutInterval) {
+		clearInterval(autoLogoutInterval);
+		autoLogoutInterval = null;
+	}
+}
+// reset timer on common interactions
+['click', 'keydown', 'touchstart'].forEach(evt => {
+	document.addEventListener(evt, () => {
+		resetAutoLogoutTimer();
+	}, { passive: true });
+});
+
 // Registrierung
 $("register-btn").onclick = function() {
 	window.location.href = "register.html";
+};
+
+// Numpad wiring (PIN-Eingabe)
+function setupNumpad() {
+	const pinInput = $("pin");
+	const pinDisplay = $("pin-display");
+	if (!pinInput) return;
+	document.querySelectorAll('.num-btn').forEach(b => {
+		b.addEventListener('click', () => {
+			if (pinInput.value.length >= 4) return;
+			pinInput.value = pinInput.value + b.textContent.trim();
+			// update masked display
+			if (pinDisplay) pinDisplay.innerHTML = pinInput.value.split('').map(()=>'•').join('');
+			// reset pin-clear timer on input
+			if (typeof resetPinClearTimer === 'function') resetPinClearTimer();
+			// kleine visuelle Rückmeldung
+			b.classList.add('active');
+			setTimeout(() => b.classList.remove('active'), 120);
+		});
+	});
+	const back = document.getElementById('num-back');
+	const clear = document.getElementById('num-clear');
+	if (back) back.addEventListener('click', () => {
+		const pin = pinInput.value;
+		pinInput.value = pin.slice(0, -1);
+		if (pinDisplay) pinDisplay.innerHTML = pinInput.value.split('').map(()=>'•').join('');
+		if (typeof resetPinClearTimer === 'function') resetPinClearTimer();
+		back.classList.add('active'); setTimeout(() => back.classList.remove('active'), 120);
+	});
+	if (clear) clear.addEventListener('click', () => {
+		pinInput.value = '';
+		if (pinDisplay) pinDisplay.innerHTML = '';
+		if (typeof resetPinClearTimer === 'function') resetPinClearTimer();
+		clear.classList.add('active'); setTimeout(() => clear.classList.remove('active'), 120);
+	});
+}
+// ensure numpad is set up on DOM ready
+window.addEventListener('DOMContentLoaded', setupNumpad);
+
+// --- PIN auto-clear (10 Sekunden) ---
+let pinClearTimer = null;
+const PIN_CLEAR_MS = 10000; // 10 Sekunden
+function clearPinField() {
+	const pin = $("pin");
+	const disp = $("pin-display");
+	if (pin) pin.value = "";
+	if (disp) disp.innerHTML = "";
+}
+function clearPinClearTimer() {
+	if (pinClearTimer) { clearTimeout(pinClearTimer); pinClearTimer = null; }
+}
+function startPinClearTimer() {
+	clearPinClearTimer();
+	pinClearTimer = setTimeout(() => {
+		clearPinField();
+		pinClearTimer = null;
+	}, PIN_CLEAR_MS);
+}
+function resetPinClearTimer() {
+	// restart timer on input
+	startPinClearTimer();
+}
+
+// Admin-Button im Login (zeigt Admin-Seite, Button optisch gleich wie Login/Register)
+$("admin-btn").onclick = function() {
+	window.location.href = "admin.html";
 };
 
 // Login
@@ -137,6 +311,12 @@ $("login-btn").onclick = async function() {
 	document.getElementById("balance-label").textContent = username + "'s Guthaben";
 		loadDrinks();
 		loadTransactions();
+	// starte Auto-Logout-Timer nach erfolgreichem Login
+	if (typeof startAutoLogoutTimer === 'function') startAutoLogoutTimer();
+	// clear pin immediately after successful login
+	clearPinField();
+	// also start pin-clear timer (in case user returns to login screen)
+	if (typeof startPinClearTimer === 'function') startPinClearTimer();
 	} else {
 		$("login-message").style.color = "red";
 		$("login-message").textContent = data.error || "Login fehlgeschlagen.";
@@ -144,18 +324,21 @@ $("login-btn").onclick = async function() {
 };
 
 
-// Logout
-$("logout-btn").onclick = function() {
+// Logout / Abmelden (wird auch von Auto-Logout aufgerufen)
+function doLogout(message) {
+	clearAutoLogoutTimer();
 	window.localStorage.removeItem("username");
 	$("main-section").style.display = "none";
 	$("user-section").style.display = "block";
-	$("login-message").textContent = "";
+	if ($("login-message")) {
+		$("login-message").textContent = message || "";
+	}
 	// Felder leeren
 	$("pin").value = "";
-	$("deposit-amount").value = "";
-	$("withdraw-amount").value = "";
+	$("amount").value = "";
 	document.querySelectorAll('.user-tile.selected').forEach(b => b.classList.remove('selected'));
-};
+}
+$("logout-btn").onclick = function() { doLogout(); };
 
 // Account löschen
 $("delete-account-btn").onclick = async function() {
@@ -181,10 +364,9 @@ $("delete-account-btn").onclick = async function() {
 		$("user-section").style.display = "block";
 		$("login-message").textContent = "Account gelöscht.";
 		$("pin").value = "";
-		$("deposit-amount").value = "";
-		$("withdraw-amount").value = "";
+		$("amount").value = "";
 		document.querySelectorAll('.user-tile.selected').forEach(b => b.classList.remove('selected'));
-		loadUserGrid();
+		loadUserGrid(1);
 	} else {
 		alert(delData.error || "Fehler beim Löschen.");
 	}
@@ -199,10 +381,10 @@ async function loadBalance() {
 	$("balance").textContent = data.balance.toFixed(2);
 }
 
-// Geld einzahlen
+// Geld einzahlen (verwendet jetzt #amount)
 $("deposit-btn").onclick = async function() {
 	const username = window.localStorage.getItem("username");
-	const amount = parseFloat($("deposit-amount").value);
+	const amount = parseFloat($("amount").value);
 	if (!username || isNaN(amount) || amount <= 0) {
 		alert("Bitte gültigen Betrag eingeben.");
 		return;
@@ -214,11 +396,70 @@ $("deposit-btn").onclick = async function() {
 	});
 	const data = await res.json();
 	if (data.success) {
-		$("deposit-amount").value = "";
+		$("amount").value = "";
 		loadBalance();
 		loadTransactions();
 	} else {
 		alert(data.error || "Fehler beim Einzahlen.");
+	}
+};
+
+// Senden an (Transfer) - öffnet Modal zur Auswahl des Empfängers
+$("send-btn").onclick = async function() {
+	const username = window.localStorage.getItem("username");
+	const amount = parseFloat($("amount").value);
+	if (!username || isNaN(amount) || amount <= 0) {
+		alert("Bitte gültigen Betrag eingeben.");
+		return;
+	}
+	// lade Nutzerliste und zeige Modal
+	const res = await fetch('/api/allusers');
+	const users = await res.json();
+	const list = document.getElementById('transfer-user-list');
+	list.innerHTML = '';
+	users.filter(u => u.username !== username).forEach(u => {
+		const btn = document.createElement('button');
+		btn.className = 'user-tile';
+		btn.textContent = u.username;
+		btn.style.display = 'block';
+		btn.style.width = '100%';
+		btn.style.textAlign = 'left';
+		btn.onclick = () => {
+			document.querySelectorAll('#transfer-user-list .user-tile.selected').forEach(b => b.classList.remove('selected'));
+			btn.classList.add('selected');
+		};
+		list.appendChild(btn);
+	});
+	// show modal
+	const bg = document.getElementById('transfer-modal-bg');
+	bg.style.display = 'flex';
+};
+
+// Transfer modal handlers
+document.getElementById('transfer-modal-cancel').onclick = () => {
+	document.getElementById('transfer-modal-bg').style.display = 'none';
+};
+document.getElementById('transfer-modal-ok').onclick = async () => {
+	const sel = document.querySelector('#transfer-user-list .user-tile.selected');
+	if (!sel) { alert('Bitte Empfänger auswählen.'); return; }
+	const to = sel.textContent;
+	const from = window.localStorage.getItem('username');
+	const amount = parseFloat($("amount").value);
+	if (!from || !to || isNaN(amount) || amount <= 0) { alert('Ungültige Eingabe.'); return; }
+	const res = await fetch('/api/transfer', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ from, to, amount })
+	});
+	const data = await res.json();
+	if (data.success) {
+		document.getElementById('transfer-modal-bg').style.display = 'none';
+		$("amount").value = '';
+		loadBalance();
+		loadTransactions();
+		alert('Betrag gesendet.');
+	} else {
+		alert(data.error || 'Fehler beim Senden.');
 	}
 };
 
@@ -297,8 +538,9 @@ async function consumeDrink(drink) {
 }
 
 // Automatisches Einloggen, falls noch gespeichert
+
 window.addEventListener("DOMContentLoaded", () => {
-	loadUserGrid();
+	loadUserGrid(1);
 	const username = window.localStorage.getItem("username");
 	if (username) {
 		$("user-section").style.display = "none";
@@ -308,12 +550,20 @@ window.addEventListener("DOMContentLoaded", () => {
 	loadDrinks();
 	loadTransactions();
 	loadBalance();
+	// starte Auto-Logout-Timer beim automatischen Login
+	if (typeof startAutoLogoutTimer === 'function') startAutoLogoutTimer();
+	// clear pin on auto-login and start pin-clear timer
+	if (typeof clearPinField === 'function') clearPinField();
+	if (typeof startPinClearTimer === 'function') startPinClearTimer();
 	}
 });
 
 // Nach Login auch Guthaben laden
 const origLoginBtn = $("login-btn").onclick;
 $("login-btn").onclick = async function() {
-	await origLoginBtn.apply(this, arguments);
-	if ($("main-section").style.display === "block") loadBalance();
+ await origLoginBtn.apply(this, arguments);
+ if ($("main-section").style.display === "block") {
+	 loadBalance();
+	 if (typeof startAutoLogoutTimer === 'function') { startAutoLogoutTimer(); console.log('[AutoLogout] started after login wrapper'); }
+ }
 };
