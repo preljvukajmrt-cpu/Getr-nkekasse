@@ -1,0 +1,282 @@
+{
+  "drinks": [
+    {
+      "name": "Cola",
+      "price": 1
+    },
+    {
+      "name": "Wasser",
+      "price": 0.5
+    },
+    {
+      "name": "döner",
+      "price": 3
+    },
+    {
+      "name": "pisse",
+      "price": 6.66
+    },
+    {
+      "name": "kake",
+      "price": -5
+    },
+    {
+      "name": "hammerwasser",
+      "price": 222
+    }
+  ],
+  "users": [
+    {
+      "username": "test1",
+      "pin": "1111",
+      "consumption": [],
+      "balance": 20
+    },
+    {
+      "username": "test2",
+      "pin": "3333",
+      "consumption": [
+        {
+          "drink": "döner",
+          "date": "2025-08-22T19:39:56.586Z"
+        },
+        {
+          "drink": "Wasser",
+          "date": "2025-08-22T19:39:58.365Z"
+        },
+        {
+          "drink": "Cola",
+          "date": "2025-08-22T20:40:58.992Z"
+        },
+        {
+          "drink": "Wasser",
+          "date": "2025-08-22T20:41:00.401Z"
+        },
+        {
+          "drink": "döner",
+          "date": "2025-08-22T20:41:01.610Z"
+        },
+        {
+          "date": "2025-08-22T20:45:48.273Z",
+          "amount": -1,
+          "type": "purchase",
+          "description": "Cola"
+        },
+        {
+          "date": "2025-08-22T20:45:50.539Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-22T20:46:00.179Z",
+          "amount": 30,
+          "type": "deposit",
+          "description": "Einzahlung"
+        },
+        {
+          "date": "2025-08-22T20:48:53.872Z",
+          "amount": 2,
+          "type": "deposit",
+          "description": "Einzahlung"
+        },
+        {
+          "date": "2025-08-22T20:49:01.680Z",
+          "amount": 0.5,
+          "type": "deposit",
+          "description": "Einzahlung"
+        },
+        {
+          "date": "2025-08-22T20:49:17.426Z",
+          "amount": -5,
+          "type": "withdraw",
+          "description": "Auszahlung"
+        },
+        {
+          "date": "2025-08-22T20:58:20.910Z",
+          "amount": -1,
+          "type": "purchase",
+          "description": "Cola"
+        },
+        {
+          "date": "2025-08-22T20:58:22.296Z",
+          "amount": -1,
+          "type": "purchase",
+          "description": "Cola"
+        },
+        {
+          "date": "2025-08-22T20:58:23.170Z",
+          "amount": -1,
+          "type": "purchase",
+          "description": "Cola"
+        },
+        {
+          "date": "2025-08-22T20:58:24.967Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-22T20:58:25.130Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-22T20:58:25.286Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-22T20:58:25.465Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-22T20:58:25.628Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-22T20:58:25.775Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-22T20:58:25.953Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-22T20:58:26.749Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-22T20:58:26.901Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-22T20:58:27.074Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-22T20:58:27.237Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-22T20:58:27.415Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-22T20:58:34.961Z",
+          "amount": 7,
+          "type": "deposit",
+          "description": "Einzahlung"
+        },
+        {
+          "date": "2025-08-22T21:00:33.517Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T21:00:33.984Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T21:00:34.167Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T21:00:34.413Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T21:00:34.574Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T21:00:35.430Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T21:00:35.592Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T21:00:35.735Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T21:00:35.871Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T21:00:37.775Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T21:00:37.899Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T21:00:38.046Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T21:00:38.148Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-22T21:00:38.270Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        }
+      ],
+      "balance": 73.5
+    }
+  ],
+  "admin": {
+    "password": "9999"
+  }
+}

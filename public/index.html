@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Getränkekasse</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- header removed -->
+  <div id="user-section">
+    <h2>Einloggen / Registrieren</h2>
+    <div id="user-grid"></div>
+  <input type="text" id="username" placeholder="Name" style="display:none;">
+    <input type="password" id="pin" placeholder="4-stelliger PIN" maxlength="4">
+    <button id="login-btn">Einloggen</button>
+    <button id="register-btn">Registrieren</button>
+    <div id="login-message"></div>
+  </div>
+  <div id="main-section" style="display:none;">
+  <div id="user-widget"><div id="user-display-name" style="display:none"></div></div>
+    <div id="main-grid">
+      <div id="left-widget">
+        <div id="balance-widget">
+          <div id="balance-label">Mein Guthaben</div>
+          <div id="balance-value"><span id="balance">0.00</span> €</div>
+        </div>
+        <div id="deposit-widget">
+    <input type="number" id="deposit-amount" placeholder="Betrag einzahlen (€)" min="0.01" step="0.01">
+    <button id="deposit-btn">Einzahlen</button>
+  <input type="number" id="withdraw-amount" placeholder="Betrag auszahlen (€)" min="0.01" step="0.01" style="margin-top:1em;">
+  <button id="withdraw-btn">Auszahlen</button>
+  <button id="change-pin-btn" style="margin-top:2em;background:#ffb700;">PIN ändern</button>
+  <button id="delete-account-btn" style="margin-top:2em;background:#ff4136;">Account löschen</button>
+        </div>
+      </div>
+      <div id="center-widget">
+        <h2>Getränke</h2>
+        <ul id="drink-list"></ul>
+        <button id="logout-btn">Logout</button>
+      </div>
+      <div id="right-widget">
+  <h3>Kontobewegungen</h3>
+        <ul id="consumption-list"></ul>
+      </div>
+    </div>
+  </div>
+  <a href="/admin.html">Admin-Bereich</a>
+  <!-- Modale Dialoge für PIN-Wechsel -->
+  <div id="pin-modal-bg" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div id="pin-modal" style="background:#222;padding:2em 2em 1.5em 2em;border-radius:1em;max-width:90vw;min-width:260px;text-align:center;">
+      <div id="pin-modal-label" style="color:#fff;font-size:1.1em;margin-bottom:1em;"></div>
+      <input id="pin-modal-input" type="password" maxlength="4" style="font-size:2em;text-align:center;letter-spacing:0.3em;padding:0.3em 0.5em;border-radius:0.5em;border:none;outline:none;" autocomplete="off">
+      <div style="margin-top:1.5em;">
+        <button id="pin-modal-ok" style="font-size:1.1em;padding:0.5em 1.5em;margin-right:1em;">OK</button>
+        <button id="pin-modal-cancel" style="font-size:1.1em;padding:0.5em 1.5em;">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+  <script src="main.js"></script>
+</body>
+</html>

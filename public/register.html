@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registrieren – Getränkekasse</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Registrieren</h1>
+  <div id="register-section">
+    <input type="text" id="reg-username" placeholder="Benutzername">
+    <input type="password" id="reg-pin" placeholder="4-stelliger PIN" maxlength="4">
+    <input type="number" id="reg-balance" placeholder="Startkapital (€)" min="0" step="0.01">
+    <button id="reg-submit">Registrieren</button>
+    <div id="reg-message"></div>
+    <a href="index.html">Zurück zum Login</a>
+  </div>
+  <script src="register.js"></script>
+</body>
+</html>

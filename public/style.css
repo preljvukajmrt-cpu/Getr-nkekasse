@@ -1,0 +1,373 @@
+#user-widget {
+	text-align: center;
+	margin-bottom: 1em;
+}
+#user-display-name { display:none; }
+.user-tile.selected {
+	background: #2ecc40 !important;
+	color: #fff;
+	box-shadow: 0 2px 12px #2ecc4088;
+	border: 2px solid #27ae60;
+}
+#user-grid {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 1em;
+	margin-bottom: 2em;
+}
+.user-tile {
+	background: #0074D9;
+	color: #fff;
+	border-radius: 10px;
+	padding: 1.2em 0.5em;
+	font-size: 1.1em;
+	font-weight: bold;
+	text-align: center;
+	cursor: pointer;
+	border: none;
+	box-shadow: 0 2px 8px #0074d955;
+	transition: background 0.2s, transform 0.1s;
+	min-width: 0;
+	min-height: 60px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.user-tile:hover, .user-tile:active {
+	background: #005fa3;
+	transform: scale(1.04);
+}
+#drink-list {
+	display: grid;
+ 	grid-template-columns: repeat(3, 1fr);
+ 	gap: 0.6em; /* smaller gaps so total width stays similar */
+    justify-items: center; /* center items inside each grid cell */
+    align-items: center;
+}
+
+/* Make each drink card the same size and center the button inside */
+#drink-list li {
+	width: auto;
+	max-width: 180px; /* slightly smaller tiles so 3 fit neatly */
+	margin: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #23272b;
+	border-radius: 10px;
+	padding: 0.35em;
+	min-height: 72px;
+	box-shadow: 0 2px 8px #0004;
+}
+
+/* Ensure the button fills the card vertically and remains centered */
+#drink-list li .drink-btn {
+	height: 100%;
+	width: 100%;
+	max-width: 200px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.drink-btn {
+	/* Make the buttons narrower for a compact look */
+	width: auto;
+	max-width: 180px;
+	font-size: 1.03em;
+	background: #0074D9;
+	color: #fff;
+	border: none;
+	border-radius: 10px;
+	padding: 0.45em 0.5em;
+	margin: 0 auto;
+	cursor: pointer;
+	font-weight: bold;
+	box-shadow: 0 2px 8px #0074d955;
+	transition: background 0.2s, transform 0.1s;
+	display: inline-block;
+	white-space: normal;
+	/* stack name and price vertically */
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+.drink-btn:hover, .drink-btn:active {
+	background: #005fa3;
+	transform: scale(1.03);
+}
+
+.drink-name {
+	font-size: 1.15em;
+	font-weight: 700;
+	line-height: 1.1;
+}
+.drink-price {
+	font-size: 0.95em;
+	font-weight: 600;
+	opacity: 0.95;
+	margin-top: 0.25em;
+}
+@media (max-width: 700px) {
+	#drink-list {
+		grid-template-columns: 1fr;
+	}
+}
+#main-grid {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap; /* allow widgets to wrap instead of overlapping */
+	gap: 1.2em;
+ 	justify-content: center;
+ 	align-items: flex-start;
+ 	width: 100%;
+ 	max-width: 1200px;
+ 	margin: 0 auto;
+}
+
+#left-widget, #center-widget, #right-widget {
+	background: #23272b;
+	border-radius: 16px;
+	box-shadow: 0 4px 24px #000a;
+	padding: 1.4em 1em;
+	min-width: 160px;
+	max-width: 320px;
+	flex: 1 1 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+#balance-widget {
+	width: 100%;
+	background: linear-gradient(135deg, #0074D9 80%, #005fa3 100%);
+	color: #fff;
+	border-radius: 18px;
+	box-shadow: 0 4px 24px #0074d988;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.3em;
+	font-weight: bold;
+	margin-bottom: 1.5em;
+	padding: 1.2em 0.5em;
+}
+#balance-label {
+	font-size: 1.1em;
+	opacity: 0.9;
+	margin-bottom: 0.5em;
+	letter-spacing: 0.03em;
+}
+#balance-value {
+	font-size: 2.2em;
+	font-weight: bold;
+	letter-spacing: 0.04em;
+	margin-bottom: 0.2em;
+}
+#deposit-widget {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+#deposit-widget input, #deposit-widget button {
+	width: 100%;
+	font-size: 1.2em;
+	margin: 0.5em 0;
+}
+
+#center-widget {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	/* make center widget wider so drink tiles fit */
+	max-width: 560px;
+	min-width: 320px;
+	flex: 2 1 560px;
+}
+#center-widget h2 {
+	margin-top: 0;
+}
+#drink-list {
+	width: 100%;
+	max-width: 520px; /* allow some room inside the center widget */
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 0.6em;
+	justify-content: center;
+}
+/* second occurrence: keep list items full width within the grid */
+#drink-list li {
+	width: auto;
+	margin: 0;
+}
+#right-widget h3 {
+	margin-top: 0;
+}
+#consumption-list {
+	width: 100%;
+}
+
+@media (max-width: 1000px) {
+	#main-grid {
+		flex-direction: column;
+		gap: 1.5em;
+		align-items: stretch;
+	}
+	#left-widget, #center-widget, #right-widget {
+		max-width: 100%;
+		min-width: 0;
+		width: 100%;
+	}
+}
+a#balance-widget {
+	position: absolute;
+	left: -170px;
+	top: 0;
+	width: 160px;
+	min-height: 120px;
+	background: linear-gradient(135deg, #0074D9 80%, #005fa3 100%);
+	color: #fff;
+	border-radius: 18px;
+	box-shadow: 0 4px 24px #0074d988;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.3em;
+	z-index: 10;
+	padding: 1.2em 0.5em;
+	font-weight: bold;
+}
+#balance-label {
+	font-size: 1.1em;
+	opacity: 0.9;
+	margin-bottom: 0.5em;
+	letter-spacing: 0.03em;
+}
+#balance-value {
+	font-size: 2.2em;
+	font-weight: bold;
+	letter-spacing: 0.04em;
+	margin-bottom: 0.2em;
+}
+#main-section {
+	position: relative;
+}
+
+body {
+	font-family: Arial, sans-serif;
+	background: #181c1f;
+	color: #f4f4f4;
+	margin: 0;
+	padding: 0;
+}
+h1 {
+	background: #222b36;
+	color: #fff;
+	padding: 1.5em;
+	margin: 0;
+	font-size: 2.2em;
+	letter-spacing: 0.05em;
+}
+#user-section, #main-section {
+	background: none;
+	margin: 2em auto;
+	padding: 0;
+	max-width: 1200px;
+	border-radius: 0;
+	box-shadow: none;
+}
+input, button {
+	margin: 1em 0;
+	padding: 1.2em;
+	width: 100%;
+	font-size: 1.3em;
+	border-radius: 8px;
+	box-sizing: border-box;
+}
+input {
+	background: #181c1f;
+	color: #f4f4f4;
+	border: 2px solid #444;
+}
+input:focus {
+	outline: none;
+	border-color: #0074D9;
+}
+button {
+	background: #0074D9;
+	color: #fff;
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+	font-weight: bold;
+	transition: background 0.2s;
+	min-height: 3.5em;
+}
+button:hover, button:active {
+	background: #005fa3;
+}
+#login-message {
+	color: #ff6b6b;
+	margin-top: 1.5em;
+	font-size: 1.1em;
+}
+ul {
+	list-style: none;
+	padding: 0;
+}
+#drink-list li, #consumption-list li {
+	margin: 1.2em 0;
+	padding: 1.2em;
+	background: #23272b;
+	border-radius: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.8em;
+	font-size: 1.2em;
+	box-shadow: 0 2px 8px #0004;
+}
+#drink-list button {
+	/* allow the .drink-btn max-width to control size and keep them centered */
+	width: auto;
+	min-width: 100px;
+	font-size: 1.1em;
+	padding: 0.8em 0.6em;
+	margin-left: 0;
+}
+
+/* Transaction amount colors */
+.tx-positive {
+	color: #2ecc40;
+}
+.tx-negative {
+	color: #ff4136;
+}
+
+/* Ensure transaction amount (right column) never wraps and stays on one line */
+#consumption-list li > div:last-child {
+	white-space: nowrap;
+	flex: 0 0 auto;
+	margin-left: 0.6em;
+}
+
+/* Allow description/date (left column) to shrink with ellipsis if too long */
+#consumption-list li > div:first-child {
+	flex: 1 1 auto;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+a {
+	color: #7fd7ff;
+	display: block;
+	text-align: center;
+	margin: 2em 0 0 0;
+	font-size: 1.2em;
+	text-decoration: underline;
+}
