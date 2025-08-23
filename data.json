@@ -746,9 +746,441 @@
           "amount": 53.36,
           "type": "deposit",
           "description": "Einzahlung"
+        },
+        {
+          "date": "2025-08-23T20:57:44.645Z",
+          "amount": -1,
+          "type": "purchase",
+          "description": "Cola"
+        },
+        {
+          "date": "2025-08-23T20:57:47.885Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-23T20:57:49.644Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-23T20:57:50.204Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-23T20:57:50.423Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-23T20:57:50.613Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-23T20:57:50.776Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-23T20:57:50.935Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-23T20:57:51.121Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-23T20:57:51.316Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-23T20:57:51.526Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-23T20:57:55.713Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-23T20:57:55.899Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-23T20:57:56.078Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-23T20:57:56.225Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-23T20:57:56.399Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-23T20:57:56.555Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-23T20:57:58.420Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-23T20:58:00.064Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:00.280Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:00.482Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:00.652Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:00.820Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:00.978Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:01.175Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:01.345Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:02.338Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:02.618Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:02.786Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:02.928Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:03.088Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:03.261Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:03.407Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:03.559Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:03.745Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:03.924Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:04.074Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:04.242Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:04.392Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:04.622Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:04.759Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:04.932Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:05.091Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T20:58:06.168Z",
+          "amount": -6.66,
+          "type": "purchase",
+          "description": "pisse"
+        },
+        {
+          "date": "2025-08-23T20:58:06.368Z",
+          "amount": -6.66,
+          "type": "purchase",
+          "description": "pisse"
+        },
+        {
+          "date": "2025-08-23T20:58:06.538Z",
+          "amount": -6.66,
+          "type": "purchase",
+          "description": "pisse"
+        },
+        {
+          "date": "2025-08-23T20:58:06.713Z",
+          "amount": -6.66,
+          "type": "purchase",
+          "description": "pisse"
+        },
+        {
+          "date": "2025-08-23T20:58:06.876Z",
+          "amount": -6.66,
+          "type": "purchase",
+          "description": "pisse"
+        },
+        {
+          "date": "2025-08-23T20:58:07.501Z",
+          "amount": -6.66,
+          "type": "purchase",
+          "description": "pisse"
+        },
+        {
+          "date": "2025-08-23T20:58:07.904Z",
+          "amount": -6.66,
+          "type": "purchase",
+          "description": "pisse"
+        },
+        {
+          "date": "2025-08-23T20:58:15.383Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-23T20:58:16.058Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-23T20:58:16.436Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-23T20:58:16.764Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-23T20:58:16.967Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-23T20:58:26.000Z",
+          "amount": 50,
+          "type": "deposit",
+          "description": "Einzahlung"
+        },
+        {
+          "date": "2025-08-23T21:12:27.777Z",
+          "amount": 200,
+          "type": "deposit",
+          "description": "Einzahlung"
+        },
+        {
+          "date": "2025-08-23T21:12:42.609Z",
+          "amount": 100,
+          "type": "deposit",
+          "description": "Einzahlung"
+        },
+        {
+          "date": "2025-08-23T21:13:37.317Z",
+          "amount": -300,
+          "type": "withdraw",
+          "description": "Auszahlung"
+        },
+        {
+          "date": "2025-08-23T21:13:45.084Z",
+          "amount": 100,
+          "type": "deposit",
+          "description": "Einzahlung"
+        },
+        {
+          "date": "2025-08-23T21:15:19.479Z",
+          "amount": -40,
+          "type": "withdraw",
+          "description": "Auszahlung"
+        },
+        {
+          "date": "2025-08-23T21:15:25.103Z",
+          "amount": 20,
+          "type": "deposit",
+          "description": "Einzahlung"
+        },
+        {
+          "date": "2025-08-23T21:15:38.813Z",
+          "amount": 10,
+          "type": "deposit",
+          "description": "Einzahlung"
+        },
+        {
+          "date": "2025-08-23T21:18:36.801Z",
+          "amount": 222.22,
+          "type": "deposit",
+          "description": "Einzahlung"
+        },
+        {
+          "date": "2025-08-23T21:18:52.688Z",
+          "amount": -200,
+          "type": "transfer",
+          "description": "Gesendet an test3"
+        },
+        {
+          "date": "2025-08-23T21:19:32.695Z",
+          "amount": 0.15,
+          "type": "deposit",
+          "description": "Einzahlung"
+        },
+        {
+          "date": "2025-08-23T21:19:40.450Z",
+          "amount": 15,
+          "type": "deposit",
+          "description": "Einzahlung"
+        },
+        {
+          "date": "2025-08-23T21:21:38.264Z",
+          "amount": 150,
+          "type": "deposit",
+          "description": "Einzahlung"
+        },
+        {
+          "date": "2025-08-23T21:22:01.981Z",
+          "amount": -300,
+          "type": "withdraw",
+          "description": "Auszahlung"
+        },
+        {
+          "date": "2025-08-23T21:22:11.115Z",
+          "amount": 150,
+          "type": "deposit",
+          "description": "Einzahlung"
+        },
+        {
+          "date": "2025-08-23T21:27:21.757Z",
+          "amount": -50,
+          "type": "withdraw",
+          "description": "Auszahlung"
+        },
+        {
+          "date": "2025-08-23T21:27:32.985Z",
+          "amount": 20,
+          "type": "deposit",
+          "description": "Einzahlung"
         }
       ],
-      "balance": 86.16000000000001
+      "balance": 165.90999999999997
     },
     {
       "username": "test3",
@@ -861,9 +1293,15 @@
           "amount": -0.5,
           "type": "purchase",
           "description": "Wasser"
+        },
+        {
+          "date": "2025-08-23T21:18:52.688Z",
+          "amount": 200,
+          "type": "transfer",
+          "description": "Erhalten von test2"
         }
       ],
-      "balance": 78.22
+      "balance": 278.22
     },
     {
       "username": "test4",
@@ -952,6 +1390,6 @@
   ],
   "admin": {
     "password": "9999",
-    "timersDisabled": false
+    "timersDisabled": true
   }
 }

@@ -4,6 +4,9 @@ const fs = require('fs');
 const path = require('path');
 const router = express.Router();
 
+// Limit für User-Kontostände
+const MAX_USER_BALANCE = 150.00;
+
 // PIN ändern
 router.post('/change-pin', (req, res) => {
   const { username, oldPin, newPin } = req.body;
@@ -87,7 +90,9 @@ router.post('/register', (req, res) => {
     return res.status(400).json({ error: 'Nutzer existiert bereits' });
   }
   let startBalance = 0;
-  if (typeof balance === 'number' && balance >= 0) startBalance = balance;
+  if (typeof balance === 'number' && balance >= 0) {
+    startBalance = Math.min(balance, MAX_USER_BALANCE); // Begrenze auf Maximum
+  }
   data.users.push({ username, pin, consumption: [], balance: startBalance });
   writeData(data);
   res.json({ success: true });
@@ -102,19 +107,70 @@ router.get('/balance/:username', (req, res) => {
 
 // Geld einzahlen
 router.post('/deposit', (req, res) => {
+  console.log('[DEPOSIT] ========== DEPOSIT REQUEST ==========');
+  console.log('[DEPOSIT] Body:', JSON.stringify(req.body, null, 2));
+  
   const { username, amount } = req.body;
-  if (!username || typeof amount !== 'number' || amount <= 0) {
-    return res.status(400).json({ error: 'Ungültige Eingabe' });
+  
+  // Basis-Validierung
+  if (!username) {
+    console.log('[DEPOSIT] ERROR: No username provided');
+    return res.status(400).json({ error: 'Kein Username angegeben' });
   }
-  const data = readData();
-  const user = data.users.find(u => u.username === username);
-  if (!user) return res.status(404).json({ error: 'Nutzer nicht gefunden' });
-  user.balance = (user.balance || 0) + amount;
-  // push transaction (positive amount for deposit)
-  if (!Array.isArray(user.consumption)) user.consumption = [];
-  user.consumption.push({ date: new Date().toISOString(), amount: amount, type: 'deposit', description: 'Einzahlung' });
-  writeData(data);
-  res.json({ success: true, balance: user.balance });
+  
+  if (typeof amount !== 'number' || amount <= 0) {
+    console.log('[DEPOSIT] ERROR: Invalid amount:', amount, 'type:', typeof amount);
+    return res.status(400).json({ error: 'Ungültiger Betrag' });
+  }
+  
+  console.log('[DEPOSIT] Username:', username);
+  console.log('[DEPOSIT] Amount to deposit:', amount);
+  console.log('[DEPOSIT] MAX_USER_BALANCE:', MAX_USER_BALANCE);
+  
+  try {
+    // Daten laden
+    const data = readData();
+    console.log('[DEPOSIT] Data loaded successfully');
+    
+    const user = data.users.find(u => u.username === username);
+    if (!user) {
+      console.log('[DEPOSIT] ERROR: User not found:', username);
+      return res.status(404).json({ error: 'Nutzer nicht gefunden' });
+    }
+    
+    const currentBalance = user.balance || 0;
+    const newBalance = currentBalance + amount;
+    
+    console.log('[DEPOSIT] Current balance:', currentBalance);
+    console.log('[DEPOSIT] New balance would be:', newBalance);
+    console.log('[DEPOSIT] Limit:', MAX_USER_BALANCE);
+    console.log('[DEPOSIT] Would exceed limit?', newBalance > MAX_USER_BALANCE);
+    
+    // LIMIT PRÜFUNG - DIREKT UND EINFACH
+    if (newBalance > MAX_USER_BALANCE) {
+      const errorMsg = `LIMIT ÜBERSCHRITTEN! Maximum: ${MAX_USER_BALANCE}€, aktuell: ${currentBalance}€, nach Einzahlung: ${newBalance}€`;
+      console.log('[DEPOSIT] ❌❌❌', errorMsg);
+      return res.status(400).json({ error: errorMsg });
+    }
+    
+    // Transaktion durchführen
+    user.balance = newBalance;
+    if (!Array.isArray(user.consumption)) user.consumption = [];
+    user.consumption.push({ 
+      date: new Date().toISOString(), 
+      amount: amount, 
+      type: 'deposit', 
+      description: 'Einzahlung' 
+    });
+    
+    writeData(data);
+    console.log('[DEPOSIT] ✅✅✅ SUCCESS! New balance:', user.balance);
+    res.json({ success: true, balance: user.balance });
+    
+  } catch (error) {
+    console.log('[DEPOSIT] ❌ EXCEPTION:', error);
+    res.status(500).json({ error: 'Server Fehler: ' + error.message });
+  }
 });
 
 router.post('/login', (req, res) => {
@@ -154,23 +210,53 @@ router.post('/consume', (req, res) => {
 
 // Transfer: von einem Nutzer zu einem anderen
 router.post('/transfer', (req, res) => {
+  console.log('[TRANSFER] Request received:', req.body);
   const { from, to, amount } = req.body;
-  if (!from || !to || typeof amount !== 'number' || amount <= 0) return res.status(400).json({ error: 'Ungültige Eingabe' });
+  if (!from || !to || typeof amount !== 'number' || amount <= 0) {
+    return res.status(400).json({ error: 'Ungültige Eingabe' });
+  }
+  
   const data = readData();
   const sender = data.users.find(u => u.username === from);
   const receiver = data.users.find(u => u.username === to);
-  if (!sender || !receiver) return res.status(404).json({ error: 'Sender oder Empfänger nicht gefunden' });
-  // prüfe Limits
+  if (!sender || !receiver) {
+    return res.status(404).json({ error: 'Sender oder Empfänger nicht gefunden' });
+  }
+  
+  // Sender-Guthaben prüfen
   const newSenderBal = (sender.balance || 0) - amount;
-  if (newSenderBal < -10) return res.status(400).json({ error: 'Nicht genug Guthaben' });
+  if (newSenderBal < -10) {
+    return res.status(400).json({ error: 'Nicht genug Guthaben' });
+  }
+  
+  // Empfänger-Limit prüfen
+  const receiverBalance = receiver.balance || 0;
+  const newReceiverBalance = receiverBalance + amount;
+  
+  console.log('[TRANSFER] Receiver current balance:', receiverBalance);
+  console.log('[TRANSFER] Transfer amount:', amount);
+  console.log('[TRANSFER] Receiver new balance would be:', newReceiverBalance);
+  console.log('[TRANSFER] Max allowed:', MAX_USER_BALANCE);
+  
+  if (newReceiverBalance > MAX_USER_BALANCE) {
+    const errorMsg = `Empfänger-Limit überschritten! Maximum: ${MAX_USER_BALANCE}€, aktuell: ${receiverBalance}€, nach Überweisung: ${newReceiverBalance}€`;
+    console.log('[TRANSFER] ❌', errorMsg);
+    return res.status(400).json({ error: errorMsg });
+  }
+  
+  // Transaktion durchführen
   sender.balance = newSenderBal;
-  receiver.balance = (receiver.balance || 0) + amount;
+  receiver.balance = newReceiverBalance;
+  
   if (!Array.isArray(sender.consumption)) sender.consumption = [];
   if (!Array.isArray(receiver.consumption)) receiver.consumption = [];
+  
   const now = new Date().toISOString();
   sender.consumption.push({ date: now, amount: -amount, type: 'transfer', description: `Gesendet an ${to}` });
   receiver.consumption.push({ date: now, amount: amount, type: 'transfer', description: `Erhalten von ${from}` });
+  
   writeData(data);
+  console.log('[TRANSFER] ✅ Transfer successful');
   res.json({ success: true, balance: sender.balance });
 });
 

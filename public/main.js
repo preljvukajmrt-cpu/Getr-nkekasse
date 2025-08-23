@@ -213,6 +213,11 @@ function startAutoLogoutTimer() {
 	}, 100);
 }
 function resetAutoLogoutTimer() {
+	// Timer nicht resetten wenn global gestoppt
+	if (globalTimersDisabled) {
+		console.log('[AutoLogout] Timer gestoppt - Reset ignoriert');
+		return;
+	}
 	// nur wenn main-section sichtbar ist
 	const mainVisible = $("main-section") && $("main-section").style.display === 'block';
 	if (!mainVisible) return;
@@ -231,6 +236,26 @@ function clearAutoLogoutTimer() {
 		clearInterval(autoLogoutInterval);
 		autoLogoutInterval = null;
 	}
+	// Progress-Balken zurücksetzen
+	const progressEl = document.querySelector('#logout-btn .logout-progress');
+	if (progressEl) progressEl.style.width = '0%';
+}
+
+// Funktion um Timer-Status sofort zu aktualisieren (z.B. wenn Admin ihn ändert)
+function forceUpdateTimerStatus() {
+	loadTimerStatus().then(() => {
+		if (globalTimersDisabled) {
+			clearAutoLogoutTimer();
+			console.log('[Timer] Timer wurden global deaktiviert - alle Timer gestoppt');
+		} else {
+			console.log('[Timer] Timer wurden global aktiviert');
+			// Timer nur starten wenn main-section sichtbar ist
+			const mainVisible = $("main-section") && $("main-section").style.display === 'block';
+			if (mainVisible) {
+				startAutoLogoutTimer();
+			}
+		}
+	});
 }
 // reset timer on common interactions
 ['click', 'keydown', 'touchstart'].forEach(evt => {
@@ -341,12 +366,15 @@ function setupMoneyNumpad() {
 	document.querySelectorAll('#money-numpad .num-btn').forEach(btn => {
 		btn.addEventListener('click', () => {
 			const currentValue = amountInput.value.replace(/[^\d]/g, '');
-			if (currentValue.length < 6) { // Max 6 Ziffern
+			if (currentValue.length < 8) { // Max 8 Ziffern (999999.99)
 				const newValue = currentValue + btn.textContent;
-				// Formatiere als Währung (z.B. 1234 -> 12.34)
-				if (newValue.length <= 2) {
-					amountInput.value = '0.' + newValue.padStart(2, '0');
+				// Korrekte Formatierung für alle Beträge
+				if (newValue.length === 1) {
+					amountInput.value = '0.0' + newValue;
+				} else if (newValue.length === 2) {
+					amountInput.value = '0.' + newValue;
 				} else {
+					// 3+ Ziffern: Immer die letzten 2 als Cents behandeln
 					const euros = newValue.slice(0, -2);
 					const cents = newValue.slice(-2);
 					amountInput.value = euros + '.' + cents;
@@ -367,9 +395,12 @@ function setupMoneyNumpad() {
 			const newValue = currentValue.slice(0, -1);
 			if (newValue.length === 0) {
 				amountInput.value = "";
-			} else if (newValue.length <= 2) {
-				amountInput.value = '0.' + newValue.padStart(2, '0');
+			} else if (newValue.length === 1) {
+				amountInput.value = '0.0' + newValue;
+			} else if (newValue.length === 2) {
+				amountInput.value = '0.' + newValue;
 			} else {
+				// 3+ Ziffern: Immer die letzten 2 als Cents behandeln
 				const euros = newValue.slice(0, -2);
 				const cents = newValue.slice(-2);
 				amountInput.value = euros + '.' + cents;
@@ -511,6 +542,7 @@ $("login-btn").onclick = async function() {
 // Logout / Abmelden (wird auch von Auto-Logout aufgerufen)
 function doLogout(message) {
 	clearAutoLogoutTimer();
+	clearPinClearTimer(); // PIN-Clear-Timer auch stoppen
 	window.localStorage.removeItem("username");
 	
 	// Alle Modals schließen
@@ -524,7 +556,7 @@ function doLogout(message) {
 		$("login-message").textContent = message || "";
 	}
 	// Felder leeren
-	$("pin").value = "";
+	clearPinField(); // Verwende die spezielle Funktion
 	$("money-amount").value = "";
 	document.querySelectorAll('.user-tile.selected').forEach(b => b.classList.remove('selected'));
 }
@@ -680,6 +712,13 @@ window.addEventListener("DOMContentLoaded", () => {
 	// Timer-Status beim Laden der Seite abrufen
 	loadTimerStatus();
 	
+	// Regelmäßiger Check des Timer-Status (alle 30 Sekunden)
+	setInterval(() => {
+		if ($("main-section") && $("main-section").style.display === 'block') {
+			forceUpdateTimerStatus();
+		}
+	}, 30000); // 30 Sekunden
+	
 	// Money-Numpad initialisieren
 	setupMoneyNumpad();
 	
@@ -709,3 +748,42 @@ $("login-btn").onclick = async function() {
 	 if (typeof startAutoLogoutTimer === 'function') { startAutoLogoutTimer(); console.log('[AutoLogout] started after login wrapper'); }
  }
 };
+
+// Click-outside Funktionalität für alle Modals
+document.addEventListener('DOMContentLoaded', function() {
+	// PIN Modal - Click outside to close
+	const pinModalBg = document.getElementById('pin-modal-bg');
+	if (pinModalBg) {
+		pinModalBg.addEventListener('click', function(e) {
+			if (e.target === pinModalBg) {
+				// Simuliere Abbrechen-Button click
+				const cancelBtn = document.getElementById('pin-modal-cancel');
+				if (cancelBtn) cancelBtn.click();
+			}
+		});
+	}
+	
+	// Money Modal - Click outside to close
+	const moneyModalBg = document.getElementById('money-modal-bg');
+	if (moneyModalBg) {
+		moneyModalBg.addEventListener('click', function(e) {
+			if (e.target === moneyModalBg) {
+				// Simuliere Abbrechen-Button click
+				const cancelBtn = document.getElementById('money-modal-cancel');
+				if (cancelBtn) cancelBtn.click();
+			}
+		});
+	}
+	
+	// Transfer Modal - Click outside to close
+	const transferModalBg = document.getElementById('transfer-modal-bg');
+	if (transferModalBg) {
+		transferModalBg.addEventListener('click', function(e) {
+			if (e.target === transferModalBg) {
+				// Simuliere Abbrechen-Button click
+				const cancelBtn = document.getElementById('transfer-modal-cancel');
+				if (cancelBtn) cancelBtn.click();
+			}
+		});
+	}
+});

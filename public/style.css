@@ -521,23 +521,70 @@ a {
 }
 #logout-btn .logout-progress {
 	position: absolute;
-	right: 0; /* anchor to the right so width growth fills leftwards */
-	left: auto;
+	left: 0; /* anchor to the left so width growth fills rightwards */
+	right: auto;
 	top: 0;
 	height: 100%;
 	width: 0%;
 	background: #2ecc40; /* solid green fill */
 	pointer-events: none;
 	transition: width 0.12s linear;
-	transform-origin: right center;
-	z-index: 1;
+	transform-origin: left center;
+	z-index: 5; /* Über dem Text */
+	/* Pac-Man Kopf an der rechten Kante */
+	clip-path: polygon(
+		0% 0%, 
+		calc(100% - 15px) 0%, 
+		calc(100% - 5px) 20%, 
+		calc(100% - 10px) 40%, 
+		calc(100% - 3px) 50%, 
+		calc(100% - 10px) 60%, 
+		calc(100% - 5px) 80%, 
+		calc(100% - 15px) 100%, 
+		0% 100%
+	);
+	animation: pacman-chomp 0.6s ease-in-out infinite;
 }
+
+@keyframes pacman-chomp {
+	0%, 100% {
+		/* Mund geschlossen */
+		clip-path: polygon(
+			0% 0%, 
+			calc(100% - 15px) 0%, 
+			calc(100% - 5px) 10%, 
+			calc(100% - 2px) 25%, 
+			calc(100% - 1px) 40%, 
+			100% 50%, 
+			calc(100% - 1px) 60%, 
+			calc(100% - 2px) 75%, 
+			calc(100% - 5px) 90%, 
+			calc(100% - 15px) 100%, 
+			0% 100%
+		);
+	}
+	50% {
+		/* Mund weit offen */
+		clip-path: polygon(
+			0% 0%, 
+			calc(100% - 15px) 0%, 
+			calc(100% - 5px) 25%, 
+			calc(100% - 20px) 40%, 
+			calc(100% - 25px) 50%, 
+			calc(100% - 20px) 60%, 
+			calc(100% - 5px) 75%, 
+			calc(100% - 15px) 100%, 
+			0% 100%
+		);
+	}
+}
+
  #logout-btn .logout-label {
 	position: relative;
-	z-index: 2;
+	z-index: 1; /* Unter dem Pac-Man */
 	color: #fff;
 }
 #logout-btn .logout-label {
 	position: relative;
-	z-index: 2;
+	z-index: 1; /* Unter dem Pac-Man */
 }
