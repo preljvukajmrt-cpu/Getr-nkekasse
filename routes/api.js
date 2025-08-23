@@ -7,6 +7,41 @@ const router = express.Router();
 // Limit für User-Kontostände
 const MAX_USER_BALANCE = 150.00;
 
+// Hilfsfunktion für feste Dezimalstellen (verhindert JavaScript-Rundungsfehler)
+function roundToTwoDecimals(num) {
+  return Math.round((num + Number.EPSILON) * 100) / 100;
+}
+
+// Hilfsfunktionen zum Lesen und Schreiben der Daten
+function readData() {
+  try {
+    const data = JSON.parse(fs.readFileSync('data.json', 'utf8'));
+    // Alle Beträge beim Laden korrigieren
+    if (data.users) {
+      data.users.forEach(user => {
+        if (typeof user.balance === 'number') {
+          user.balance = roundToTwoDecimals(user.balance);
+        }
+      });
+    }
+    return data;
+  } catch (err) {
+    return { drinks: [], users: [], admin: { password: "9999" } };
+  }
+}
+
+function writeData(data) {
+  // Alle Beträge vor dem Speichern korrigieren
+  if (data.users) {
+    data.users.forEach(user => {
+      if (typeof user.balance === 'number') {
+        user.balance = roundToTwoDecimals(user.balance);
+      }
+    });
+  }
+  fs.writeFileSync('data.json', JSON.stringify(data, null, 2));
+}
+
 // PIN ändern
 router.post('/change-pin', (req, res) => {
   const { username, oldPin, newPin } = req.body;
@@ -66,13 +101,6 @@ router.post('/withdraw', (req, res) => {
 
 const DATA_PATH = path.join(__dirname, '../data.json');
 
-function readData() {
-  return JSON.parse(fs.readFileSync(DATA_PATH, 'utf8'));
-}
-function writeData(data) {
-  fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
-}
-
 // --- Getränke ---
 router.get('/drinks', (req, res) => {
   const data = readData();
@@ -123,12 +151,16 @@ router.post('/deposit', (req, res) => {
     return res.status(400).json({ error: 'Ungültiger Betrag' });
   }
   
+  // Betrag auf 2 Dezimalstellen runden
+  const roundedAmount = roundToTwoDecimals(amount);
+  
   console.log('[DEPOSIT] Username:', username);
-  console.log('[DEPOSIT] Amount to deposit:', amount);
+  console.log('[DEPOSIT] Amount to deposit (original):', amount);
+  console.log('[DEPOSIT] Amount to deposit (rounded):', roundedAmount);
   console.log('[DEPOSIT] MAX_USER_BALANCE:', MAX_USER_BALANCE);
   
   try {
-    // Daten laden
+    // Daten laden (mit automatischer Rundung)
     const data = readData();
     console.log('[DEPOSIT] Data loaded successfully');
     
@@ -138,8 +170,8 @@ router.post('/deposit', (req, res) => {
       return res.status(404).json({ error: 'Nutzer nicht gefunden' });
     }
     
-    const currentBalance = user.balance || 0;
-    const newBalance = currentBalance + amount;
+    const currentBalance = roundToTwoDecimals(user.balance || 0);
+    const newBalance = roundToTwoDecimals(currentBalance + roundedAmount);
     
     console.log('[DEPOSIT] Current balance:', currentBalance);
     console.log('[DEPOSIT] New balance would be:', newBalance);
@@ -158,7 +190,7 @@ router.post('/deposit', (req, res) => {
     if (!Array.isArray(user.consumption)) user.consumption = [];
     user.consumption.push({ 
       date: new Date().toISOString(), 
-      amount: amount, 
+      amount: roundedAmount, 
       type: 'deposit', 
       description: 'Einzahlung' 
     });
@@ -230,8 +262,8 @@ router.post('/transfer', (req, res) => {
   }
   
   // Empfänger-Limit prüfen
-  const receiverBalance = receiver.balance || 0;
-  const newReceiverBalance = receiverBalance + amount;
+  const receiverBalance = roundToTwoDecimals(receiver.balance || 0);
+  const newReceiverBalance = roundToTwoDecimals(receiverBalance + amount);
   
   console.log('[TRANSFER] Receiver current balance:', receiverBalance);
   console.log('[TRANSFER] Transfer amount:', amount);

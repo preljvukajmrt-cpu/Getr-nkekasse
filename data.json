@@ -1178,9 +1178,15 @@
           "amount": 20,
           "type": "deposit",
           "description": "Einzahlung"
+        },
+        {
+          "date": "2025-08-23T21:35:02.980Z",
+          "amount": -50,
+          "type": "withdraw",
+          "description": "Auszahlung"
         }
       ],
-      "balance": 165.90999999999997
+      "balance": 115.90
     },
     {
       "username": "test3",
