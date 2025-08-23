@@ -674,9 +674,81 @@
           "amount": 5,
           "type": "purchase",
           "description": "kake"
+        },
+        {
+          "date": "2025-08-23T17:20:20.952Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-23T17:20:22.154Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-23T17:20:40.961Z",
+          "amount": -5,
+          "type": "transfer",
+          "description": "Gesendet an test3"
+        },
+        {
+          "date": "2025-08-23T17:22:44.420Z",
+          "amount": -6.66,
+          "type": "purchase",
+          "description": "pisse"
+        },
+        {
+          "date": "2025-08-23T17:22:47.448Z",
+          "amount": -6.66,
+          "type": "purchase",
+          "description": "pisse"
+        },
+        {
+          "date": "2025-08-23T18:49:02.846Z",
+          "amount": 5,
+          "type": "purchase",
+          "description": "kake"
+        },
+        {
+          "date": "2025-08-23T18:49:04.835Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-23T18:49:05.646Z",
+          "amount": -3,
+          "type": "purchase",
+          "description": "döner"
+        },
+        {
+          "date": "2025-08-23T18:49:06.872Z",
+          "amount": -1,
+          "type": "purchase",
+          "description": "Cola"
+        },
+        {
+          "date": "2025-08-23T18:49:19.850Z",
+          "amount": 6,
+          "type": "deposit",
+          "description": "Einzahlung"
+        },
+        {
+          "date": "2025-08-23T19:29:06.958Z",
+          "amount": -12.22,
+          "type": "transfer",
+          "description": "Gesendet an test3"
+        },
+        {
+          "date": "2025-08-23T19:40:05.362Z",
+          "amount": 53.36,
+          "type": "deposit",
+          "description": "Einzahlung"
         }
       ],
-      "balance": 46.84
+      "balance": 86.16000000000001
     },
     {
       "username": "test3",
@@ -711,9 +783,87 @@
           "amount": 5,
           "type": "transfer",
           "description": "Erhalten von test2"
+        },
+        {
+          "date": "2025-08-23T17:20:40.961Z",
+          "amount": 5,
+          "type": "transfer",
+          "description": "Erhalten von test2"
+        },
+        {
+          "date": "2025-08-23T19:29:06.958Z",
+          "amount": 12.22,
+          "type": "transfer",
+          "description": "Erhalten von test2"
+        },
+        {
+          "date": "2025-08-23T19:53:47.631Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-23T19:53:48.794Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-23T19:53:49.522Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-23T19:53:50.303Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-23T19:53:50.762Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-23T19:53:50.975Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-23T19:53:51.111Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-23T19:53:51.293Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-23T19:53:51.461Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-23T19:53:51.634Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
+        },
+        {
+          "date": "2025-08-23T19:53:51.813Z",
+          "amount": -0.5,
+          "type": "purchase",
+          "description": "Wasser"
         }
       ],
-      "balance": 66.5
+      "balance": 78.22
     },
     {
       "username": "test4",
@@ -801,6 +951,7 @@
     }
   ],
   "admin": {
-    "password": "9999"
+    "password": "9999",
+    "timersDisabled": false
   }
 }

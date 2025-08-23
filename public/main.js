@@ -133,6 +133,13 @@ function clearUsersPageResetTimer() {
 function startUsersPageResetTimer() {
 	clearUsersPageResetTimer();
 	if (usersCurrentPage === 1) return;
+	
+	// Timer nicht starten wenn global gestoppt
+	if (globalTimersDisabled) {
+		console.log('[Users-Page-Reset] Timer gestoppt - nicht gestartet');
+		return;
+	}
+	
 	usersPageResetTimer = setTimeout(() => {
 		usersCurrentPage = 1;
 		loadUserGrid(1);
@@ -140,53 +147,68 @@ function startUsersPageResetTimer() {
 	}, USERS_PAGE_RESET_MS);
 }
 
-// Geld auszahlen (verwendet jetzt #amount)
-$("withdraw-btn").onclick = async function() {
-	const username = window.localStorage.getItem("username");
-	const amount = parseFloat($("amount").value);
-	if (!username || isNaN(amount) || amount <= 0) {
-		alert("Bitte gültigen Betrag eingeben.");
-		return;
-	}
-	const res = await fetch("/api/withdraw", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ username, amount })
-	});
-	const data = await res.json();
-	if (data.success) {
-		$("amount").value = "";
-		loadBalance();
-		loadTransactions();
-	} else {
-		alert(data.error || "Fehler beim Auszahlen.");
-	}
-};
+// Diese Funktion wurde durch das neue Modal ersetzt - wird nicht mehr benötigt
+// Der alte withdraw-btn existiert nicht mehr
 
 // Hilfsfunktionen
 function $(id) { return document.getElementById(id); }
+
+// --- Globaler Timer-Status ---
+let globalTimersDisabled = false;
+
+// Timer-Status vom Server abrufen
+async function loadTimerStatus() {
+	try {
+		const res = await fetch("/api/admin/timer-status");
+		const data = await res.json();
+		globalTimersDisabled = data.timersDisabled;
+		console.log('[Timer] Globaler Timer-Status:', globalTimersDisabled ? 'gestoppt' : 'läuft');
+	} catch (error) {
+		console.error('[Timer] Fehler beim Laden des Timer-Status:', error);
+		globalTimersDisabled = false; // Fallback: Timer laufen lassen
+	}
+}
+
+// Timer-Status regelmäßig aktualisieren (alle 5 Sekunden)
+setInterval(loadTimerStatus, 5000);
 
 // --- Auto-Logout (15 Sekunden Inaktivität) with visual progress ---
 let autoLogoutTimer = null;
 let autoLogoutInterval = null;
 const AUTO_LOGOUT_MS = 15000; // 15 Sekunden
+const SLOW_LOGOUT_MS = AUTO_LOGOUT_MS * 2; // 30 Sekunden wenn Modal geöffnet ist
+
 function startAutoLogoutTimer() {
+	// Timer nicht starten wenn global gestoppt
+	if (globalTimersDisabled) {
+		console.log('[AutoLogout] Timer gestoppt - nicht gestartet');
+		return;
+	}
+	
 	clearAutoLogoutTimer();
-	console.log('[AutoLogout] start timer for', AUTO_LOGOUT_MS, 'ms');
+	
+	// Timer verlangsamen wenn Geld-Modal geöffnet ist
+	const moneyModalOpen = $("money-modal-bg") && $("money-modal-bg").style.display === 'flex';
+	const currentTimeout = moneyModalOpen ? SLOW_LOGOUT_MS : AUTO_LOGOUT_MS;
+	const timeoutLabel = moneyModalOpen ? 'SLOW' : 'NORMAL';
+	
+	console.log('[AutoLogout] start timer for', currentTimeout, 'ms (', timeoutLabel, ')');
 	const start = Date.now();
 	const progressEl = document.querySelector('#logout-btn .logout-progress');
 	if (progressEl) progressEl.style.width = '0%';
+	
 	autoLogoutTimer = setTimeout(() => {
 		console.log('[AutoLogout] timeout fired — performing logout');
 		if (autoLogoutInterval) { clearInterval(autoLogoutInterval); autoLogoutInterval = null; }
 		if (progressEl) progressEl.style.width = '100%';
 		doLogout('Automatisch ausgeloggt (Inaktivität).');
-	}, AUTO_LOGOUT_MS);
+	}, currentTimeout);
+	
 	// start interval to update progress bar
 	if (autoLogoutInterval) clearInterval(autoLogoutInterval);
 	autoLogoutInterval = setInterval(() => {
 		const elapsed = Date.now() - start;
-		const pct = Math.min(100, (elapsed / AUTO_LOGOUT_MS) * 100);
+		const pct = Math.min(100, (elapsed / currentTimeout) * 100);
 		if (progressEl) progressEl.style.width = pct + '%';
 	}, 100);
 }
@@ -272,6 +294,12 @@ function clearPinClearTimer() {
 	if (pinClearTimer) { clearTimeout(pinClearTimer); pinClearTimer = null; }
 }
 function startPinClearTimer() {
+	// Timer nicht starten wenn global gestoppt
+	if (globalTimersDisabled) {
+		console.log('[PIN-Clear] Timer gestoppt - nicht gestartet');
+		return;
+	}
+	
 	clearPinClearTimer();
 	pinClearTimer = setTimeout(() => {
 		clearPinField();
@@ -286,6 +314,163 @@ function resetPinClearTimer() {
 // Admin-Button im Login (zeigt Admin-Seite, Button optisch gleich wie Login/Register)
 $("admin-btn").onclick = function() {
 	window.location.href = "admin.html";
+};
+
+// Geld verwalten Modal öffnen (jetzt über Balance-Widget)
+$("balance-widget").onclick = function() {
+	$("money-modal-bg").style.display = "flex";
+	$("money-amount").value = "";
+	$("money-amount").focus();
+	// Timer neu starten mit verlangsamter Geschwindigkeit
+	if (typeof startAutoLogoutTimer === 'function') startAutoLogoutTimer();
+};
+
+// Geld verwalten Modal abbrechen (setzt Eingabe zurück und schließt Modal)
+$("money-modal-cancel").onclick = function() {
+	$("money-amount").value = "";
+	$("money-modal-bg").style.display = "none";
+	// Timer neu starten mit normaler Geschwindigkeit
+	if (typeof startAutoLogoutTimer === 'function') startAutoLogoutTimer();
+};
+
+// Numpad für Geld verwalten
+function setupMoneyNumpad() {
+	const amountInput = $("money-amount");
+	
+	// Zahlen-Buttons (verwendet jetzt die gleichen Klassen wie PIN-Numpad)
+	document.querySelectorAll('#money-numpad .num-btn').forEach(btn => {
+		btn.addEventListener('click', () => {
+			const currentValue = amountInput.value.replace(/[^\d]/g, '');
+			if (currentValue.length < 6) { // Max 6 Ziffern
+				const newValue = currentValue + btn.textContent;
+				// Formatiere als Währung (z.B. 1234 -> 12.34)
+				if (newValue.length <= 2) {
+					amountInput.value = '0.' + newValue.padStart(2, '0');
+				} else {
+					const euros = newValue.slice(0, -2);
+					const cents = newValue.slice(-2);
+					amountInput.value = euros + '.' + cents;
+				}
+			}
+		});
+	});
+	
+	// Clear-Button
+	$("money-clear").addEventListener('click', () => {
+		amountInput.value = "";
+	});
+	
+	// Backspace-Button
+	$("money-back").addEventListener('click', () => {
+		const currentValue = amountInput.value.replace(/[^\d]/g, '');
+		if (currentValue.length > 0) {
+			const newValue = currentValue.slice(0, -1);
+			if (newValue.length === 0) {
+				amountInput.value = "";
+			} else if (newValue.length <= 2) {
+				amountInput.value = '0.' + newValue.padStart(2, '0');
+			} else {
+				const euros = newValue.slice(0, -2);
+				const cents = newValue.slice(-2);
+				amountInput.value = euros + '.' + cents;
+			}
+		}
+	});
+}
+
+// Einzahlen über Modal
+$("money-deposit-btn").onclick = async function() {
+	const amount = parseFloat($("money-amount").value);
+	if (isNaN(amount) || amount <= 0) {
+		alert("Bitte gültigen Betrag eingeben.");
+		return;
+	}
+	
+	const username = window.localStorage.getItem("username");
+	if (!username) return;
+	
+	const res = await fetch("/api/deposit", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ username, amount })
+	});
+	const data = await res.json();
+	if (data.success) {
+		$("money-amount").value = "";
+		$("money-modal-bg").style.display = "none";
+		loadBalance();
+		loadTransactions();
+		alert("Betrag erfolgreich eingezahlt.");
+	} else {
+		alert(data.error || "Fehler beim Einzahlen.");
+	}
+};
+
+// Auszahlen über Modal
+$("money-withdraw-btn").onclick = async function() {
+	const amount = parseFloat($("money-amount").value);
+	if (isNaN(amount) || amount <= 0) {
+		alert("Bitte gültigen Betrag eingeben.");
+		return;
+	}
+	
+	const username = window.localStorage.getItem("username");
+	if (!username) return;
+	
+	const res = await fetch("/api/withdraw", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ username, amount })
+	});
+	const data = await res.json();
+	if (data.success) {
+		$("money-amount").value = "";
+		$("money-modal-bg").style.display = "none";
+		loadBalance();
+		loadTransactions();
+		alert("Betrag erfolgreich ausgezahlt.");
+	} else {
+		alert(data.error || "Fehler beim Auszahlen.");
+	}
+};
+
+// Senden über Modal - öffnet Transfer-Modal
+$("money-send-btn").onclick = async function() {
+	const amount = parseFloat($("money-amount").value);
+	if (isNaN(amount) || amount <= 0) {
+		alert("Bitte gültigen Betrag eingeben.");
+		return;
+	}
+	
+	// Schließe Geld-Modal und öffne Transfer-Modal
+	$("money-modal-bg").style.display = "none";
+	
+	// Lade Nutzerliste und zeige Transfer-Modal
+	const username = window.localStorage.getItem("username");
+	if (!username) return;
+	
+	const res = await fetch('/api/allusers');
+	const users = await res.json();
+	const list = document.getElementById('transfer-user-list');
+	list.innerHTML = '';
+	
+	users.filter(u => u.username !== username).forEach(u => {
+		const btn = document.createElement('button');
+		btn.className = 'user-tile';
+		btn.textContent = u.username;
+		btn.style.display = 'block';
+		btn.style.width = '100%';
+		btn.style.textAlign = 'left';
+		btn.onclick = () => {
+			document.querySelectorAll('#transfer-user-list .user-tile.selected').forEach(b => b.classList.remove('selected'));
+			btn.classList.add('selected');
+		};
+		list.appendChild(btn);
+	});
+	
+	// Zeige Transfer-Modal
+	const bg = document.getElementById('transfer-modal-bg');
+	bg.style.display = 'flex';
 };
 
 // Login
@@ -323,11 +508,16 @@ $("login-btn").onclick = async function() {
 	}
 };
 
-
 // Logout / Abmelden (wird auch von Auto-Logout aufgerufen)
 function doLogout(message) {
 	clearAutoLogoutTimer();
 	window.localStorage.removeItem("username");
+	
+	// Alle Modals schließen
+	if ($("money-modal-bg")) $("money-modal-bg").style.display = "none";
+	if ($("transfer-modal-bg")) $("transfer-modal-bg").style.display = "none";
+	if ($("pin-modal-bg")) $("pin-modal-bg").style.display = "none";
+	
 	$("main-section").style.display = "none";
 	$("user-section").style.display = "block";
 	if ($("login-message")) {
@@ -335,7 +525,7 @@ function doLogout(message) {
 	}
 	// Felder leeren
 	$("pin").value = "";
-	$("amount").value = "";
+	$("money-amount").value = "";
 	document.querySelectorAll('.user-tile.selected').forEach(b => b.classList.remove('selected'));
 }
 $("logout-btn").onclick = function() { doLogout(); };
@@ -364,7 +554,7 @@ $("delete-account-btn").onclick = async function() {
 		$("user-section").style.display = "block";
 		$("login-message").textContent = "Account gelöscht.";
 		$("pin").value = "";
-		$("amount").value = "";
+		$("money-amount").value = "";
 		document.querySelectorAll('.user-tile.selected').forEach(b => b.classList.remove('selected'));
 		loadUserGrid(1);
 	} else {
@@ -381,60 +571,6 @@ async function loadBalance() {
 	$("balance").textContent = data.balance.toFixed(2);
 }
 
-// Geld einzahlen (verwendet jetzt #amount)
-$("deposit-btn").onclick = async function() {
-	const username = window.localStorage.getItem("username");
-	const amount = parseFloat($("amount").value);
-	if (!username || isNaN(amount) || amount <= 0) {
-		alert("Bitte gültigen Betrag eingeben.");
-		return;
-	}
-	const res = await fetch("/api/deposit", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ username, amount })
-	});
-	const data = await res.json();
-	if (data.success) {
-		$("amount").value = "";
-		loadBalance();
-		loadTransactions();
-	} else {
-		alert(data.error || "Fehler beim Einzahlen.");
-	}
-};
-
-// Senden an (Transfer) - öffnet Modal zur Auswahl des Empfängers
-$("send-btn").onclick = async function() {
-	const username = window.localStorage.getItem("username");
-	const amount = parseFloat($("amount").value);
-	if (!username || isNaN(amount) || amount <= 0) {
-		alert("Bitte gültigen Betrag eingeben.");
-		return;
-	}
-	// lade Nutzerliste und zeige Modal
-	const res = await fetch('/api/allusers');
-	const users = await res.json();
-	const list = document.getElementById('transfer-user-list');
-	list.innerHTML = '';
-	users.filter(u => u.username !== username).forEach(u => {
-		const btn = document.createElement('button');
-		btn.className = 'user-tile';
-		btn.textContent = u.username;
-		btn.style.display = 'block';
-		btn.style.width = '100%';
-		btn.style.textAlign = 'left';
-		btn.onclick = () => {
-			document.querySelectorAll('#transfer-user-list .user-tile.selected').forEach(b => b.classList.remove('selected'));
-			btn.classList.add('selected');
-		};
-		list.appendChild(btn);
-	});
-	// show modal
-	const bg = document.getElementById('transfer-modal-bg');
-	bg.style.display = 'flex';
-};
-
 // Transfer modal handlers
 document.getElementById('transfer-modal-cancel').onclick = () => {
 	document.getElementById('transfer-modal-bg').style.display = 'none';
@@ -444,7 +580,7 @@ document.getElementById('transfer-modal-ok').onclick = async () => {
 	if (!sel) { alert('Bitte Empfänger auswählen.'); return; }
 	const to = sel.textContent;
 	const from = window.localStorage.getItem('username');
-	const amount = parseFloat($("amount").value);
+	const amount = parseFloat($("money-amount").value);
 	if (!from || !to || isNaN(amount) || amount <= 0) { alert('Ungültige Eingabe.'); return; }
 	const res = await fetch('/api/transfer', {
 		method: 'POST',
@@ -454,7 +590,7 @@ document.getElementById('transfer-modal-ok').onclick = async () => {
 	const data = await res.json();
 	if (data.success) {
 		document.getElementById('transfer-modal-bg').style.display = 'none';
-		$("amount").value = '';
+		$("money-amount").value = '';
 		loadBalance();
 		loadTransactions();
 		alert('Betrag gesendet.');
@@ -541,6 +677,12 @@ async function consumeDrink(drink) {
 
 window.addEventListener("DOMContentLoaded", () => {
 	loadUserGrid(1);
+	// Timer-Status beim Laden der Seite abrufen
+	loadTimerStatus();
+	
+	// Money-Numpad initialisieren
+	setupMoneyNumpad();
+	
 	const username = window.localStorage.getItem("username");
 	if (username) {
 		$("user-section").style.display = "none";

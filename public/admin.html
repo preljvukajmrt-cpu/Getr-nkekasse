@@ -17,6 +17,7 @@
     <nav>
       <button id="tab-drinks">Getränke verwalten</button>
       <button id="tab-password">Passwort ändern</button>
+      <button id="tab-debug">Debug</button>
     </nav>
     <section id="drinks-section">
       <h2>Getränke</h2>
@@ -31,6 +32,13 @@
       <input type="password" id="new-admin-password" placeholder="Neues Passwort">
       <button id="change-password-btn">Passwort ändern</button>
       <div id="password-message"></div>
+    </section>
+    <section id="debug-section" style="display:none;">
+      <h2>Debug-Funktionen</h2>
+      <div class="debug-controls">
+        <button id="timer-toggle-btn" class="timer-btn-off">Timer aus</button>
+        <div id="timer-status">Status: Timer laufen</div>
+      </div>
     </section>
     <button id="admin-logout-btn">Logout</button>
   </div>

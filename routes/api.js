@@ -212,4 +212,22 @@ router.delete('/admin/drinks/:name', (req, res) => {
   res.json({ success: true });
 });
 
+// Timer-Status abrufen
+router.get('/admin/timer-status', (req, res) => {
+  const data = readData();
+  const timersDisabled = data.admin.timersDisabled || false;
+  res.json({ timersDisabled });
+});
+
+// Timer-Status umschalten
+router.post('/admin/timer-toggle', (req, res) => {
+  const data = readData();
+  data.admin.timersDisabled = !data.admin.timersDisabled;
+  writeData(data);
+  res.json({ 
+    success: true, 
+    timersDisabled: data.admin.timersDisabled 
+  });
+});
+
 module.exports = router;

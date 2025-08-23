@@ -41,6 +41,7 @@ $("admin-login-btn").onclick = async function() {
 		$("admin-login-section").style.display = "none";
 		$("admin-main-section").style.display = "block";
 		loadAdminDrinks();
+		loadTimerStatus();
 		showTab("drinks");
 	} else {
 		$("admin-login-message").textContent = data.error || "Login fehlgeschlagen.";
@@ -52,9 +53,57 @@ $("admin-login-btn").onclick = async function() {
 function showTab(tab) {
 	$("drinks-section").style.display = tab === "drinks" ? "block" : "none";
 	$("password-section").style.display = tab === "password" ? "block" : "none";
+	$("debug-section").style.display = tab === "debug" ? "block" : "none";
 }
 $("tab-drinks").onclick = () => showTab("drinks");
 $("tab-password").onclick = () => showTab("password");
+$("tab-debug").onclick = () => showTab("debug");
+
+// Timer-Status laden
+async function loadTimerStatus() {
+	try {
+		const res = await fetch("/api/admin/timer-status");
+		const data = await res.json();
+		updateTimerButton(data.timersDisabled);
+	} catch (error) {
+		console.error("Fehler beim Laden des Timer-Status:", error);
+	}
+}
+
+// Timer-Button aktualisieren
+function updateTimerButton(timersDisabled) {
+	const btn = $("timer-toggle-btn");
+	const status = $("timer-status");
+	
+	if (timersDisabled) {
+		btn.textContent = "Timer an";
+		btn.className = "timer-btn-on";
+		status.textContent = "Status: Timer gestoppt";
+	} else {
+		btn.textContent = "Timer aus";
+		btn.className = "timer-btn-off";
+		status.textContent = "Status: Timer laufen";
+	}
+}
+
+// Timer-Toggle-Button
+$("timer-toggle-btn").onclick = async function() {
+	try {
+		const res = await fetch("/api/admin/timer-toggle", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" }
+		});
+		const data = await res.json();
+		if (data.success) {
+			updateTimerButton(data.timersDisabled);
+		} else {
+			alert("Fehler beim Umschalten der Timer: " + (data.error || "Unbekannter Fehler"));
+		}
+	} catch (error) {
+		console.error("Fehler beim Umschalten der Timer:", error);
+		alert("Fehler beim Umschalten der Timer");
+	}
+};
 
 
 // Logout
