@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barcode Scanner - Getränkekasse</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
+  <style>
+    .scanner-container {
+      max-width: 800px;
+      margin: 2em auto;
+      padding: 2em;
+      background: #23272b;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px #000a;
+      text-align: center;
+      color: #fff;
+    }
+    
+    #video-container {
+      position: relative;
+      margin: 2em 0;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      max-width: 100%;
+    }
+    
+    #video {
+      width: 100%;
+      max-width: 640px;
+      height: 480px;
+      display: block;
+      object-fit: cover;
+    }
+    
+    #scanner-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+    }
+    
+    .detection-box {
+      position: absolute;
+      border: 3px solid #2ecc40;
+      background: rgba(46, 204, 64, 0.2);
+      z-index: 15;
+      border-radius: 4px;
+      animation: pulse 1s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(46, 204, 64, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(46, 204, 64, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(46, 204, 64, 0); }
+    }
+    
+    .scanner-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 250px;
+      height: 250px;
+      border: 3px solid #0074D9;
+      border-radius: 12px;
+      background: rgba(0, 116, 217, 0.1);
+      pointer-events: none;
+    }
+    
+    .scanner-overlay::before {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      border: 2px dashed #0074D9;
+      border-radius: 8px;
+    }
+    
+    .drink-info {
+      background: #2c3136;
+      padding: 1.5em;
+      border-radius: 12px;
+      margin: 1.5em 0;
+      border-left: 4px solid #0074D9;
+    }
+    
+    .drink-info h3 {
+      margin: 0 0 0.5em 0;
+      color: #0074D9;
+    }
+    
+    .drink-info p {
+      margin: 0.25em 0;
+      color: #adb5bd;
+    }
+    
+    .scanner-controls {
+      display: flex;
+      gap: 1em;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 2em 0;
+    }
+    
+    .scanner-btn {
+      background: #0074D9;
+      color: white;
+      border: none;
+      padding: 1em 2em;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: bold;
+      transition: all 0.2s ease;
+      min-width: 120px;
+    }
+    
+    .scanner-btn:hover {
+      background: #005fa3;
+      transform: translateY(-2px);
+    }
+    
+    .scanner-btn:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .scanner-btn.success {
+      background: #2ecc40;
+    }
+    
+    .scanner-btn.success:hover {
+      background: #27ae60;
+    }
+    
+    .scanner-btn.danger {
+      background: #ff4136;
+    }
+    
+    .scanner-btn.danger:hover {
+      background: #dc2f02;
+    }
+    
+    .status-message {
+      padding: 1em;
+      border-radius: 8px;
+      margin: 1em 0;
+      font-weight: bold;
+    }
+    
+    .status-success {
+      background: rgba(46, 204, 64, 0.2);
+      color: #2ecc40;
+      border: 1px solid #2ecc40;
+    }
+    
+    .status-error {
+      background: rgba(255, 65, 54, 0.2);
+      color: #ff4136;
+      border: 1px solid #ff4136;
+    }
+    
+    .status-info {
+      background: rgba(0, 116, 217, 0.2);
+      color: #0074D9;
+      border: 1px solid #0074D9;
+    }
+    
+    #manual-input {
+      width: 100%;
+      max-width: 300px;
+      padding: 0.8em;
+      margin: 1em 0;
+      border: 1px solid #3a3f45;
+      background: #2c3136;
+      color: #fff;
+      border-radius: 4px;
+      font-size: 1em;
+      text-align: center;
+    }
+    
+    #manual-input:focus {
+      outline: none;
+      border-color: #0074D9;
+      box-shadow: 0 0 0 2px rgba(0, 116, 217, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="scanner-container">
+    <h1>Barcode Scanner</h1>
+    <div class="drink-info" id="drink-info" style="display:none;">
+      <h3 id="drink-name">-</h3>
+      <p>Preis: <span id="drink-price">-</span> €</p>
+      <p>Aktueller Barcode: <span id="current-barcode">-</span></p>
+    </div>
+    
+    <div id="video-container">
+      <video id="video" autoplay playsinline></video>
+      <canvas id="scanner-canvas"></canvas>
+      <div class="scanner-overlay">
+        <div style="position: absolute; top: -30px; left: 50%; transform: translateX(-50%); color: #0074D9; font-weight: bold; font-size: 0.9em;">
+          EAN Barcode hier positionieren
+        </div>
+      </div>
+    </div>
+    
+    <div class="scanner-controls">
+      <button id="start-btn" class="scanner-btn">Kamera starten</button>
+      <button id="stop-btn" class="scanner-btn" disabled>Kamera stoppen</button>
+    </div>
+    
+    <div id="status-message" class="status-message" style="display:none;"></div>
+    
+    <div style="margin: 2em 0;">
+      <h3>Manueller EAN-Barcode</h3>
+      <input type="text" id="manual-input" placeholder="EAN-8 oder EAN-13 eingeben" maxlength="13" pattern="[0-9]*">
+      <br>
+      <button id="manual-submit" class="scanner-btn" style="margin-top: 1em;">EAN-Barcode setzen</button>
+    </div>
+    
+    <div class="scanner-controls">
+      <button id="save-btn" class="scanner-btn success" disabled>Barcode speichern</button>
+      <button id="back-btn" class="scanner-btn danger">Zurück zum Admin</button>
+    </div>
+  </div>
+
+  <script>
+    // Get drink ID from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const drinkId = urlParams.get('drinkId');
+    let currentDrink = null;
+    let scannedBarcode = null;
+    let isScanning = false;
+
+    // Load drink information
+    async function loadDrinkInfo() {
+      if (!drinkId) {
+        showStatus('Fehler: Keine Getränk-ID gefunden', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/admin/drinks');
+        const drinks = await response.json();
+        currentDrink = drinks.find(d => d.id == drinkId);
+        
+        if (currentDrink) {
+          document.getElementById('drink-name').textContent = currentDrink.name;
+          document.getElementById('drink-price').textContent = currentDrink.price.toFixed(2);
+          document.getElementById('current-barcode').textContent = currentDrink.barcode || 'Kein Barcode';
+          document.getElementById('drink-info').style.display = 'block';
+        } else {
+          showStatus('Getränk nicht gefunden', 'error');
+        }
+      } catch (error) {
+        console.error('Fehler beim Laden der Getränke-Info:', error);
+        showStatus('Fehler beim Laden der Getränke-Info', 'error');
+      }
+    }
+
+    // Show status message
+    function showStatus(message, type = 'info') {
+      const statusEl = document.getElementById('status-message');
+      statusEl.textContent = message;
+      statusEl.className = 'status-message status-' + type;
+      statusEl.style.display = 'block';
+      
+      setTimeout(() => {
+        statusEl.style.display = 'none';
+      }, 5000);
+    }
+
+    // Start EAN barcode scanner using QuaggaJS (optimized for EAN)
+    async function startScanner() {
+      if (isScanning) return;
+      
+      try {
+        // Configure QuaggaJS for EAN barcode detection
+        Quagga.init({
+          inputStream: {
+            name: "Live",
+            type: "LiveStream",
+            target: document.querySelector('#video-container'),
+            constraints: {
+              width: 640,
+              height: 480,
+              facingMode: "environment" // Use back camera on mobile
+            }
+          },
+          locator: {
+            patchSize: "medium",
+            halfSample: true,
+            willReadFrequently: true
+          },
+          numOfWorkers: 2,
+          frequency: 10,
+          decoder: {
+            readers: [
+              "ean_reader",      // EAN-13 and EAN-8
+              "ean_8_reader",    // EAN-8 specifically
+              "code_128_reader", // Code 128 (fallback)
+              "code_39_reader"   // Code 39 (fallback)
+            ]
+          },
+          locate: true
+        }, function(err) {
+          if (err) {
+            console.error('QuaggaJS initialization failed:', err);
+            showStatus('Kamera-Fehler: ' + err.message, 'error');
+            return;
+          }
+          
+          console.log("QuaggaJS initialized successfully");
+          Quagga.start();
+          isScanning = true;
+          
+          document.getElementById('start-btn').disabled = true;
+          document.getElementById('stop-btn').disabled = false;
+          showStatus('EAN Barcode-Scanner gestartet. Barcode zentral positionieren.', 'info');
+        });
+
+        // Handle successful barcode detection
+        Quagga.onDetected(function(result) {
+          const code = result.codeResult.code;
+          const format = result.codeResult.format;
+          
+          console.log('Barcode detected:', code, 'Format:', format);
+          
+          // Validate EAN format
+          if (format.includes('ean') || format.includes('EAN')) {
+            handleBarcodeScanned(code, format);
+            
+            // Draw detection box
+            drawDetectionBox(result.boxes);
+            
+            // Stop scanning after successful detection
+            setTimeout(stopScanner, 1000);
+          } else {
+            showStatus(`${format} erkannt, aber EAN erwartet: ${code}`, 'error');
+          }
+        });
+
+        // Handle processing (real-time feedback)
+        Quagga.onProcessed(function(result) {
+          const drawingCtx = Quagga.canvas.ctx.overlay;
+          const drawingCanvas = Quagga.canvas.dom.overlay;
+
+          if (result) {
+            if (result.boxes) {
+              drawingCtx.clearRect(0, 0, parseInt(drawingCanvas.getAttribute("width")), parseInt(drawingCanvas.getAttribute("height")));
+              result.boxes.filter(function (box) {
+                return box !== result.box;
+              }).forEach(function (box) {
+                Quagga.ImageDebug.drawPath(box, {x: 0, y: 1}, drawingCtx, {color: "green", lineWidth: 2});
+              });
+            }
+
+            if (result.box) {
+              Quagga.ImageDebug.drawPath(result.box, {x: 0, y: 1}, drawingCtx, {color: "#00F", lineWidth: 2});
+            }
+
+            if (result.codeResult && result.codeResult.code) {
+              Quagga.ImageDebug.drawPath(result.line, {x: 'x', y: 'y'}, drawingCtx, {color: 'red', lineWidth: 3});
+            }
+          }
+        });
+        
+      } catch (error) {
+        console.error('Fehler beim Starten des Scanners:', error);
+        showStatus('Fehler beim Starten des Scanners: ' + error.message, 'error');
+      }
+    }
+
+    // Stop scanner
+    function stopScanner() {
+      if (Quagga && isScanning) {
+        Quagga.stop();
+        isScanning = false;
+      }
+      document.getElementById('start-btn').disabled = false;
+      document.getElementById('stop-btn').disabled = true;
+      showStatus('Scanner gestoppt', 'info');
+    }
+
+    // Draw detection box around found barcode
+    function drawDetectionBox(boxes) {
+      // Remove existing detection boxes
+      document.querySelectorAll('.detection-box').forEach(box => box.remove());
+      
+      if (boxes && boxes.length > 0) {
+        const container = document.getElementById('video-container');
+        const box = boxes[0]; // Use first detection box
+        
+        const detectionBox = document.createElement('div');
+        detectionBox.className = 'detection-box';
+        detectionBox.style.left = box[0].x + 'px';
+        detectionBox.style.top = box[0].y + 'px';
+        detectionBox.style.width = (box[1].x - box[0].x) + 'px';
+        detectionBox.style.height = (box[2].y - box[0].y) + 'px';
+        
+        container.appendChild(detectionBox);
+        
+        // Remove box after 2 seconds
+        setTimeout(() => {
+          detectionBox.remove();
+        }, 2000);
+      }
+    }
+
+    // Handle scanned barcode
+    function handleBarcodeScanned(barcode, format) {
+      scannedBarcode = barcode;
+      showStatus(`EAN Barcode erkannt (${format}): ${barcode}`, 'success');
+      document.getElementById('manual-input').value = barcode;
+      document.getElementById('save-btn').disabled = false;
+      
+      // Auto-save after 2 seconds if no user interaction
+      setTimeout(() => {
+        if (scannedBarcode === barcode && !document.getElementById('save-btn').disabled) {
+          saveBarcode();
+        }
+      }, 2000);
+    }
+
+    // Save barcode
+    async function saveBarcode() {
+      const barcode = scannedBarcode || document.getElementById('manual-input').value.trim();
+      
+      if (!barcode) {
+        showStatus('Bitte einen EAN-Barcode eingeben oder scannen', 'error');
+        return;
+      }
+
+      // Basic EAN validation
+      if (!/^[0-9]{8}$|^[0-9]{13}$/.test(barcode)) {
+        showStatus('Ungültiger EAN-Barcode. EAN-8 (8 Ziffern) oder EAN-13 (13 Ziffern) erwartet.', 'error');
+        return;
+      }
+
+      if (!currentDrink) {
+        showStatus('Kein Getränk ausgewählt', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/admin/drinks/${currentDrink.id}/barcode`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ barcode })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          showStatus('EAN-Barcode erfolgreich gespeichert!', 'success');
+          document.getElementById('current-barcode').textContent = barcode;
+          document.getElementById('save-btn').disabled = true;
+          scannedBarcode = null;
+        } else {
+          showStatus('Fehler: ' + (data.error || 'Unbekannter Fehler'), 'error');
+        }
+      } catch (error) {
+        console.error('Fehler beim Speichern:', error);
+        showStatus('Fehler beim Speichern des Barcodes', 'error');
+      }
+    }
+
+    // Event listeners
+    document.getElementById('start-btn').addEventListener('click', startScanner);
+    document.getElementById('stop-btn').addEventListener('click', stopScanner);
+    document.getElementById('save-btn').addEventListener('click', saveBarcode);
+    document.getElementById('back-btn').addEventListener('click', () => {
+      stopScanner();
+      window.location.href = '/admin.html';
+    });
+
+    document.getElementById('manual-submit').addEventListener('click', () => {
+      const barcode = document.getElementById('manual-input').value.trim();
+      if (barcode) {
+        handleBarcodeScanned(barcode, 'manual');
+      } else {
+        showStatus('Bitte einen EAN-Barcode eingeben', 'error');
+      }
+    });
+
+    document.getElementById('manual-input').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('manual-submit').click();
+      }
+    });
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      stopScanner();
+    });
+
+    // Initialize
+    loadDrinkInfo();
+  </script>
+</body>
+</html>

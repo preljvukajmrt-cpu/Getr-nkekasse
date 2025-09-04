@@ -147,7 +147,9 @@ function renderDrinksTable() {
 		row.innerHTML = `
 			<td class="editable-cell" data-field="name" data-drink-id="${drink.id}">${drink.name}</td>
 			<td class="editable-cell" data-field="price" data-drink-id="${drink.id}">${drink.price.toFixed(2)}</td>
+			<td class="barcode-cell">${drink.barcode || '<span style="color:#adb5bd;">Kein Barcode</span>'}</td>
 			<td>
+				<button class="action-btn barcode-btn" onclick="openBarcodeScanner(${drink.id})" style="background:#0074D9;margin-right:0.5em;">Barcode</button>
 				<button class="action-btn" onclick="deleteDrink(${drink.id})">Löschen</button>
 			</td>
 		`;
@@ -162,6 +164,13 @@ function renderDrinksTable() {
 	
 	// Update save button state
 	updateSaveButtonState();
+}
+
+function openBarcodeScanner(drinkId) {
+	const drink = drinksData.find(d => d.id === drinkId);
+	if (drink) {
+		window.open(`/barcode-scanner.html?drinkId=${drinkId}`, '_blank', 'width=900,height=700');
+	}
 }
 
 function updateSaveButtonState() {

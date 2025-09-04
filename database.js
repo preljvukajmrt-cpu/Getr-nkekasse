@@ -193,12 +193,13 @@ class DatabaseManager {
 
     // === DRINKS ===
     async getDrinks() {
-        const query = 'SELECT id, name, price FROM drinks ORDER BY name';
+        const query = 'SELECT id, name, price, barcode FROM drinks ORDER BY name';
         const result = await this.pool.query(query);
         return result.rows.map(row => ({
             id: row.id,
             name: row.name,
-            price: parseFloat(row.price)
+            price: parseFloat(row.price),
+            barcode: row.barcode
         }));
     }
 
@@ -217,6 +218,18 @@ class DatabaseManager {
         const query = 'UPDATE drinks SET name = $1, price = $2 WHERE id = $3';
         const result = await this.pool.query(query, [name, price, id]);
         return result.rowCount > 0;
+    }
+
+    async updateDrinkBarcode(id, barcode) {
+        const query = 'UPDATE drinks SET barcode = $1 WHERE id = $2';
+        const result = await this.pool.query(query, [barcode, id]);
+        return result.rowCount > 0;
+    }
+
+    async getDrinkByBarcode(barcode) {
+        const query = 'SELECT id, name, price, barcode FROM drinks WHERE barcode = $1';
+        const result = await this.pool.query(query, [barcode]);
+        return result.rows[0] || null;
     }
 
     async deleteDrinkById(id) {
@@ -272,6 +285,8 @@ module.exports = {
     deleteDrink: (name) => db.deleteDrink(name),
     updateDrink: (id, name, price) => db.updateDrink(id, name, price),
     deleteDrinkById: (id) => db.deleteDrinkById(id),
+    updateDrinkBarcode: (id, barcode) => db.updateDrinkBarcode(id, barcode),
+    getDrinkByBarcode: (barcode) => db.getDrinkByBarcode(barcode),
 
     // Admin operations
     getAdminSetting: (key) => db.getAdminSetting(key),

@@ -431,6 +431,44 @@ router.delete('/admin/drinks/id/:id', requireDatabase, async (req, res) => {
     }
 });
 
+// Barcode endpoints
+router.put('/admin/drinks/:id/barcode', requireDatabase, async (req, res) => {
+    try {
+        const { barcode } = req.body;
+        if (!barcode) {
+            return res.status(400).json({ error: 'Barcode ist erforderlich' });
+        }
+        
+        const success = await db.updateDrinkBarcode(req.params.id, barcode);
+        if (success) {
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ error: 'Getränk nicht gefunden' });
+        }
+    } catch (error) {
+        console.error('[API] Fehler beim Aktualisieren des Barcodes:', error);
+        if (error.code === '23505') {
+            res.status(400).json({ error: 'Barcode bereits vergeben' });
+        } else {
+            res.status(500).json({ error: 'Fehler beim Aktualisieren des Barcodes' });
+        }
+    }
+});
+
+router.get('/drinks/barcode/:barcode', requireDatabase, async (req, res) => {
+    try {
+        const drink = await db.getDrinkByBarcode(req.params.barcode);
+        if (drink) {
+            res.json(drink);
+        } else {
+            res.status(404).json({ error: 'Getränk mit diesem Barcode nicht gefunden' });
+        }
+    } catch (error) {
+        console.error('[API] Fehler beim Suchen nach Barcode:', error);
+        res.status(500).json({ error: 'Fehler beim Suchen nach Barcode' });
+    }
+});
+
 // Timer-Status
 router.get('/admin/timer-status', requireDatabase, async (req, res) => {
     try {

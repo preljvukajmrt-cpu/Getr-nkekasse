@@ -738,10 +738,25 @@ a {
 	cursor: pointer;
 	font-size: 0.9em;
 	transition: background 0.2s ease;
+	margin: 0 0.2em;
 }
 
 .action-btn:hover {
 	background: #dc2f02;
+}
+
+.action-btn.barcode-btn {
+	background: #0074D9;
+}
+
+.action-btn.barcode-btn:hover {
+	background: #005fa3;
+}
+
+.barcode-cell {
+	font-family: 'Courier New', monospace;
+	font-size: 0.9em;
+	color: #0074D9;
 }
 
 .save-button {
