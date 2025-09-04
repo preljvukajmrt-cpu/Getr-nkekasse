@@ -92,7 +92,7 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	font-size: 0.8em;
+	font-size: 1.0em !important;
 	margin: 0 !important;
 	padding: 0.3em !important;
 	box-sizing: border-box;
@@ -180,7 +180,7 @@
 	height: 80px !important;
 	min-height: 80px !important;
 	max-height: 80px !important;
-	font-size: 0.8em !important;
+	font-size: 1.0em !important;
 	background: #0074D9;
 	color: #fff;
 	border: none;
@@ -244,7 +244,7 @@
 	
 	.drink-btn {
 		min-height: 80px;
-		font-size: 0.9em;
+		font-size: 1.1em !important;
 	}
 	
 	.drink-name {
@@ -379,7 +379,7 @@
 		min-height: 75px !important;
 		max-height: 75px !important;
 		height: 75px !important;
-		font-size: 0.75em !important;
+		font-size: 0.9em !important;
 	}
 }
 a#balance-widget {
