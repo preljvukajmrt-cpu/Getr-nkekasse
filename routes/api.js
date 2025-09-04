@@ -206,11 +206,59 @@ router.post('/deposit', (req, res) => {
 });
 
 router.post('/login', (req, res) => {
+  console.log('[LOGIN] ========== LOGIN REQUEST ==========');
+  console.log('[LOGIN] Request Body:', JSON.stringify(req.body, null, 2));
+  
   const { username, pin } = req.body;
-  const data = readData();
-  const user = data.users.find(u => u.username === username && u.pin === pin);
-  if (!user) return res.status(401).json({ error: 'Login fehlgeschlagen' });
-  res.json({ success: true });
+  
+  // Validierung der Eingaben
+  if (!username || !pin) {
+    console.log('[LOGIN] ❌ Username oder PIN fehlt');
+    return res.status(400).json({ error: 'Username und PIN sind erforderlich' });
+  }
+  
+  if (typeof username !== 'string' || typeof pin !== 'string') {
+    console.log('[LOGIN] ❌ Username oder PIN sind nicht vom Typ String');
+    return res.status(400).json({ error: 'Username und PIN müssen Strings sein' });
+  }
+  
+  if (pin.length !== 4) {
+    console.log('[LOGIN] ❌ PIN hat nicht 4 Stellen:', pin.length);
+    return res.status(400).json({ error: 'PIN muss 4 Stellen haben' });
+  }
+  
+  try {
+    const data = readData();
+    console.log(`[LOGIN] Versuch für Username: "${username}", PIN: "${pin}"`);
+    console.log(`[LOGIN] Anzahl User in Datenbank: ${data.users ? data.users.length : 0}`);
+    
+    // Debug: Zeige alle verfügbaren Usernames
+    if (data.users) {
+      console.log('[LOGIN] Verfügbare Users:', data.users.map(u => u.username));
+    }
+    
+    // User suchen (case-sensitive)
+    const user = data.users ? data.users.find(u => u.username === username) : null;
+    if (!user) {
+      console.log(`[LOGIN] ❌ User "${username}" nicht gefunden`);
+      return res.status(401).json({ error: 'Login fehlgeschlagen' });
+    }
+    
+    console.log(`[LOGIN] User gefunden: "${user.username}", gespeicherter PIN: "${user.pin}"`);
+    
+    // PIN prüfen (string comparison)
+    if (user.pin !== pin) {
+      console.log(`[LOGIN] ❌ Falscher PIN für User "${username}". Eingabe: "${pin}", Erwartet: "${user.pin}"`);
+      return res.status(401).json({ error: 'Login fehlgeschlagen' });
+    }
+    
+    console.log(`[LOGIN] ✅ Erfolgreicher Login für User "${username}"`);
+    res.json({ success: true });
+    
+  } catch (error) {
+    console.error('[LOGIN] ❌ EXCEPTION:', error);
+    res.status(500).json({ error: 'Server Fehler beim Login' });
+  }
 });
 
 router.get('/consumption/:username', (req, res) => {

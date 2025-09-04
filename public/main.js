@@ -86,7 +86,9 @@ async function loadUserGrid(page = 1) {
 		btn.textContent = user.username;
 		btn.onclick = () => {
 			$("username").value = user.username;
-			$("pin").focus();
+			// PIN-Eingabe fokussieren
+			const pinDisplay = $("pin-display");
+			if (pinDisplay) pinDisplay.focus();
 			// Markiere Auswahl
 			document.querySelectorAll('.user-tile.selected').forEach(b => b.classList.remove('selected'));
 			btn.classList.add('selected');
@@ -274,10 +276,19 @@ function setupNumpad() {
 	const pinInput = $("pin");
 	const pinDisplay = $("pin-display");
 	if (!pinInput) return;
+	
+	console.log('[NUMPAD] Setting up numpad...');
+	
+	// Setup für Ziffern-Buttons (1-9, 0)
 	document.querySelectorAll('.num-btn').forEach(b => {
+		if (b._numpadWired) return; // Bereits verdrahtet
+		b._numpadWired = true;
+		console.log('[NUMPAD] Wiring button:', b.textContent);
 		b.addEventListener('click', () => {
 			if (pinInput.value.length >= 4) return;
-			pinInput.value = pinInput.value + b.textContent.trim();
+			const digit = b.textContent.trim();
+			pinInput.value = pinInput.value + digit;
+			console.log('[NUMPAD] Added digit:', digit, 'Current PIN:', pinInput.value);
 			// update masked display
 			if (pinDisplay) pinDisplay.innerHTML = pinInput.value.split('').map(()=>'•').join('');
 			// reset pin-clear timer on input
@@ -287,21 +298,37 @@ function setupNumpad() {
 			setTimeout(() => b.classList.remove('active'), 120);
 		});
 	});
+	
+	// Setup für Backspace-Button
 	const back = document.getElementById('num-back');
+	if (back && !back._numpadWired) {
+		back._numpadWired = true;
+		console.log('[NUMPAD] Wiring backspace button');
+		back.addEventListener('click', () => {
+			const pin = pinInput.value;
+			pinInput.value = pin.slice(0, -1);
+			console.log('[NUMPAD] Backspace, new PIN:', pinInput.value);
+			if (pinDisplay) pinDisplay.innerHTML = pinInput.value.split('').map(()=>'•').join('');
+			if (typeof resetPinClearTimer === 'function') resetPinClearTimer();
+			back.classList.add('active'); setTimeout(() => back.classList.remove('active'), 120);
+		});
+	}
+	
+	// Setup für Clear-Button
 	const clear = document.getElementById('num-clear');
-	if (back) back.addEventListener('click', () => {
-		const pin = pinInput.value;
-		pinInput.value = pin.slice(0, -1);
-		if (pinDisplay) pinDisplay.innerHTML = pinInput.value.split('').map(()=>'•').join('');
-		if (typeof resetPinClearTimer === 'function') resetPinClearTimer();
-		back.classList.add('active'); setTimeout(() => back.classList.remove('active'), 120);
-	});
-	if (clear) clear.addEventListener('click', () => {
-		pinInput.value = '';
-		if (pinDisplay) pinDisplay.innerHTML = '';
-		if (typeof resetPinClearTimer === 'function') resetPinClearTimer();
-		clear.classList.add('active'); setTimeout(() => clear.classList.remove('active'), 120);
-	});
+	if (clear && !clear._numpadWired) {
+		clear._numpadWired = true;
+		console.log('[NUMPAD] Wiring clear button');
+		clear.addEventListener('click', () => {
+			pinInput.value = '';
+			console.log('[NUMPAD] Clear PIN');
+			if (pinDisplay) pinDisplay.innerHTML = '';
+			if (typeof resetPinClearTimer === 'function') resetPinClearTimer();
+			clear.classList.add('active'); setTimeout(() => clear.classList.remove('active'), 120);
+		});
+	}
+	
+	console.log('[NUMPAD] Setup complete');
 }
 // ensure numpad is set up on DOM ready
 window.addEventListener('DOMContentLoaded', setupNumpad);
@@ -508,34 +535,53 @@ $("money-send-btn").onclick = async function() {
 $("login-btn").onclick = async function() {
 	const username = $("username").value.trim();
 	const pin = $("pin").value.trim();
+	
+	console.log('[FRONTEND-LOGIN] Username:', username, 'PIN-Länge:', pin.length);
+	
 	if (!username || pin.length !== 4) {
 		$("login-message").textContent = "Bitte Name und 4-stelligen PIN eingeben.";
+		$("login-message").style.color = "red";
 		return;
 	}
-	const res = await fetch("/api/login", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ username, pin })
-	});
-	const data = await res.json();
-	if (data.success) {
-		$("user-section").style.display = "none";
-		$("main-section").style.display = "block";
-		window.localStorage.setItem("username", username);
-	// hide top name and show username in balance label
-	document.getElementById("user-display-name").style.display = 'none';
-	document.getElementById("balance-label").textContent = username + "'s Guthaben";
-		loadDrinks();
-		loadTransactions();
-	// starte Auto-Logout-Timer nach erfolgreichem Login
-	if (typeof startAutoLogoutTimer === 'function') startAutoLogoutTimer();
-	// clear pin immediately after successful login
-	clearPinField();
-	// also start pin-clear timer (in case user returns to login screen)
-	if (typeof startPinClearTimer === 'function') startPinClearTimer();
-	} else {
+	
+	$("login-message").textContent = "Login läuft..."; // Loading message
+	$("login-message").style.color = "#fff";
+	
+	try {
+		console.log('[FRONTEND-LOGIN] Sende Request an /api/login');
+		const res = await fetch("/api/login", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ username, pin })
+		});
+		
+		console.log('[FRONTEND-LOGIN] Response Status:', res.status);
+		const data = await res.json();
+		console.log('[FRONTEND-LOGIN] Response Data:', data);
+		
+		if (data && data.success) {
+			console.log('[FRONTEND-LOGIN] ✅ Login erfolgreich');
+			$("user-section").style.display = "none";
+			$("main-section").style.display = "block";
+			window.localStorage.setItem("username", username);
+			// hide top name and show username in balance label
+			if (document.getElementById("user-display-name")) document.getElementById("user-display-name").style.display = 'none';
+			if (document.getElementById("balance-label")) document.getElementById("balance-label").textContent = username + "'s Guthaben";
+			loadDrinks();
+			loadBalance();
+			if (typeof loadTransactions === 'function') loadTransactions();
+			if (typeof startAutoLogoutTimer === 'function') startAutoLogoutTimer();
+			clearPinField();
+			if (typeof startPinClearTimer === 'function') startPinClearTimer();
+		} else {
+			console.log('[FRONTEND-LOGIN] ❌ Login fehlgeschlagen:', data);
+			$("login-message").style.color = "red";
+			$("login-message").textContent = (data && data.error) || "Login fehlgeschlagen.";
+		}
+	} catch (error) {
+		console.error('[FRONTEND-LOGIN] ❌ EXCEPTION:', error);
 		$("login-message").style.color = "red";
-		$("login-message").textContent = data.error || "Login fehlgeschlagen.";
+		$("login-message").textContent = "Netzwerkfehler beim Login.";
 	}
 };
 
@@ -726,28 +772,21 @@ window.addEventListener("DOMContentLoaded", () => {
 	if (username) {
 		$("user-section").style.display = "none";
 		$("main-section").style.display = "block";
-	document.getElementById("user-display-name").style.display = 'none';
-	document.getElementById("balance-label").textContent = username + "'s Guthaben";
-	loadDrinks();
-	loadTransactions();
-	loadBalance();
-	// starte Auto-Logout-Timer beim automatischen Login
-	if (typeof startAutoLogoutTimer === 'function') startAutoLogoutTimer();
-	// clear pin on auto-login and start pin-clear timer
-	if (typeof clearPinField === 'function') clearPinField();
-	if (typeof startPinClearTimer === 'function') startPinClearTimer();
+		document.getElementById("user-display-name").style.display = 'none';
+		document.getElementById("balance-label").textContent = username + "'s Guthaben";
+		loadDrinks();
+		loadTransactions();
+		loadBalance();
+		// starte Auto-Logout-Timer beim automatischen Login
+		if (typeof startAutoLogoutTimer === 'function') startAutoLogoutTimer();
+		// clear pin on auto-login and start pin-clear timer
+		if (typeof clearPinField === 'function') clearPinField();
+		if (typeof startPinClearTimer === 'function') startPinClearTimer();
 	}
 });
 
-// Nach Login auch Guthaben laden
-const origLoginBtn = $("login-btn").onclick;
-$("login-btn").onclick = async function() {
- await origLoginBtn.apply(this, arguments);
- if ($("main-section").style.display === "block") {
-	 loadBalance();
-	 if (typeof startAutoLogoutTimer === 'function') { startAutoLogoutTimer(); console.log('[AutoLogout] started after login wrapper'); }
- }
-};
+// Entferne den doppelten Login-Button Handler - das war das Hauptproblem!
+// Der Login-Handler ist bereits weiter oben im Code definiert
 
 // Click-outside Funktionalität für alle Modals
 document.addEventListener('DOMContentLoaded', function() {
