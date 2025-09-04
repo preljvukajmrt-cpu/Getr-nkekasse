@@ -55,37 +55,48 @@
 #drink-list {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
-	gap: 1em;
+	gap: 0.6em;
 	justify-items: stretch;
 	align-items: stretch;
 	width: 100%;
-	max-width: 480px;
+	max-width: 420px; /* Smaller to fit in 480px widget with padding */
 	margin: 0 auto;
+	padding: 0;
+	box-sizing: border-box;
 }
 
 /* Make each drink card compact and uniform */
 #drink-list li {
 	width: 100%;
-	height: 90px; /* Slightly reduced height for better proportions */
+	height: 80px; /* Consistent height for all buttons */
 	margin: 0;
+	padding: 0;
 	display: flex;
 	align-items: stretch;
 	justify-content: stretch;
-	background: transparent; /* Remove card background, let button handle styling */
+	background: transparent;
+	border: none;
 	border-radius: 0;
-	padding: 0;
 	box-shadow: none;
+	list-style: none;
+	overflow: hidden;
 }
 
-/* Button fills the entire grid cell */
+/* Button fills the entire grid cell - MOST IMPORTANT RULE */
 #drink-list li .drink-btn {
-	height: 100%;
-	width: 100%;
+	height: 80px !important;
+	width: 100% !important;
+	max-height: 80px !important;
+	min-height: 80px !important;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	min-height: 90px;
+	font-size: 0.8em;
+	margin: 0 !important;
+	padding: 0.3em !important;
+	box-sizing: border-box;
+	flex: none;
 }
 
 /* Debug-Sektion Styles */
@@ -165,28 +176,31 @@
 }
 
 .drink-btn {
-	width: 100%;
-	height: 100%;
-	min-height: 90px;
-	max-width: none; /* Remove width constraints */
-	font-size: 0.95em;
+	width: 100% !important;
+	height: 80px !important;
+	min-height: 80px !important;
+	max-height: 80px !important;
+	font-size: 0.8em !important;
 	background: #0074D9;
 	color: #fff;
 	border: none;
 	border-radius: 12px;
-	padding: 0.6em 0.4em;
+	padding: 0.3em !important;
 	cursor: pointer;
 	font-weight: bold;
 	box-shadow: 0 3px 12px rgba(0, 116, 217, 0.3);
 	transition: all 0.2s ease;
 	text-align: center;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
+	display: flex !important;
+	flex-direction: column !important;
+	align-items: center !important;
+	justify-content: center !important;
 	word-wrap: break-word;
 	overflow: hidden;
 	position: relative;
+	box-sizing: border-box !important;
+	margin: 0 !important;
+	flex: none !important;
 }
 .drink-btn:hover, .drink-btn:active {
 	background: #005fa3;
@@ -266,11 +280,19 @@
 	box-shadow: 0 4px 24px #000a;
 	padding: 1.4em 1em;
 	min-width: 160px;
-	max-width: 320px;
 	flex: 1 1 0;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+}
+
+#left-widget, #right-widget {
+	max-width: 320px;
+}
+
+#center-widget {
+	max-width: 480px; /* Smaller to ensure containment */
+	min-width: 300px;
 }
 
 #balance-widget {
@@ -316,10 +338,10 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	/* make center widget wider so drink tiles fit */
-	max-width: 560px;
-	min-width: 320px;
-	flex: 2 1 560px;
+	/* Remove conflicting styles - use widget max-width instead */
+	width: 100%;
+	padding: 1.4em 1em;
+	box-sizing: border-box;
 }
 #center-widget h2 {
 	margin-top: 0;
@@ -342,6 +364,22 @@
 		max-width: 100%;
 		min-width: 0;
 		width: 100%;
+	}
+	
+	#drink-list {
+		max-width: 100%;
+		gap: 0.5em;
+	}
+	
+	#drink-list li {
+		height: 75px !important;
+	}
+	
+	#drink-list li .drink-btn {
+		min-height: 75px !important;
+		max-height: 75px !important;
+		height: 75px !important;
+		font-size: 0.75em !important;
 	}
 }
 a#balance-widget {
@@ -492,7 +530,8 @@ ul {
 	list-style: none;
 	padding: 0;
 }
-#drink-list li, #consumption-list li {
+/* Consumption list items only - drinks use grid layout */
+#consumption-list li {
 	margin: 1.2em 0;
 	padding: 1.2em;
 	background: #23272b;
@@ -504,14 +543,7 @@ ul {
 	font-size: 1.2em;
 	box-shadow: 0 2px 8px #0004;
 }
-#drink-list button {
-	/* allow the .drink-btn max-width to control size and keep them centered */
-	width: auto;
-	min-width: 100px;
-	font-size: 1.1em;
-	padding: 0.8em 0.6em;
-	margin-left: 0;
-}
+/* Remove old drink button rules - grid layout handles sizing */
 
 /* Transaction amount colors */
 .tx-positive {
@@ -616,4 +648,198 @@ a {
 #logout-btn .logout-label {
 	position: relative;
 	z-index: 1; /* Unter dem Pac-Man */
+}
+
+/* Admin Table Styles */
+.drinks-table-container {
+	margin: 2em 0;
+	background: #2c3136;
+	border-radius: 12px;
+	padding: 1.5em;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+#drinks-table {
+	width: 100%;
+	border-collapse: collapse;
+	background: #23272b;
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+#drinks-table th {
+	background: #0074D9;
+	color: white;
+	padding: 1em;
+	text-align: left;
+	font-weight: bold;
+	border: none;
+}
+
+#drinks-table td {
+	padding: 0.8em 1em;
+	border-bottom: 1px solid #3a3f45;
+	background: #23272b;
+	color: #fff;
+}
+
+#drinks-table tr:last-child td {
+	border-bottom: none;
+}
+
+#drinks-table tr:hover td {
+	background: #2c3136;
+}
+
+/* Editable cells - Jira style */
+.editable-cell {
+	position: relative;
+	cursor: pointer;
+	border-radius: 4px;
+	transition: all 0.2s ease;
+	min-height: 20px;
+	padding: 0.5em 0.8em;
+}
+
+.editable-cell:hover {
+	background: #3a3f45 !important;
+	outline: 2px solid #0074D9;
+}
+
+.editable-cell.editing {
+	background: #fff !important;
+	color: #000;
+	outline: 2px solid #0074D9;
+}
+
+.editable-cell input {
+	width: 100%;
+	border: none;
+	background: transparent;
+	color: inherit;
+	font-size: inherit;
+	font-family: inherit;
+	padding: 0;
+	outline: none;
+}
+
+.editable-cell.editing input {
+	color: #000;
+}
+
+/* Action buttons */
+.action-btn {
+	background: #ff4136;
+	color: white;
+	border: none;
+	padding: 0.4em 0.8em;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 0.9em;
+	transition: background 0.2s ease;
+}
+
+.action-btn:hover {
+	background: #dc2f02;
+}
+
+.save-button {
+	background: #2ecc40;
+	color: white;
+	border: none;
+	padding: 1em 2em;
+	border-radius: 8px;
+	cursor: pointer;
+	font-size: 1.1em;
+	font-weight: bold;
+	margin-top: 1em;
+	transition: all 0.2s ease;
+	box-shadow: 0 2px 8px rgba(46, 204, 64, 0.3);
+	width: 100%;
+}
+
+.save-button:hover:not(:disabled) {
+	background: #27ae60;
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(46, 204, 64, 0.4);
+}
+
+.save-button:disabled {
+	background: #6c757d;
+	cursor: not-allowed;
+	box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+	transform: none;
+}
+
+.save-button-container {
+	text-align: center;
+	margin-top: 1.5em;
+	padding: 1em;
+	background: #2c3136;
+	border-radius: 8px;
+	border-top: 1px solid #3a3f45;
+}
+
+.save-hint {
+	color: #adb5bd;
+	font-size: 0.9em;
+	margin: 0.5em 0 0 0;
+	font-style: italic;
+}
+
+.add-drink-container {
+	margin: 2em 0;
+	background: #2c3136;
+	border-radius: 12px;
+	padding: 1.5em;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.add-drink-container h3 {
+	margin-top: 0;
+	color: #fff;
+	margin-bottom: 1em;
+}
+
+.add-drink-container input {
+	width: calc(50% - 0.5em);
+	padding: 0.8em;
+	margin: 0.5em 0.5em 0.5em 0;
+	border: 1px solid #3a3f45;
+	background: #23272b;
+	color: #fff;
+	border-radius: 4px;
+	font-size: 1em;
+}
+
+.add-drink-container input:focus {
+	outline: none;
+	border-color: #0074D9;
+	box-shadow: 0 0 0 2px rgba(0, 116, 217, 0.2);
+}
+
+.add-drink-container button {
+	background: #0074D9;
+	color: white;
+	border: none;
+	padding: 0.8em 1.5em;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 1em;
+	margin-top: 0.5em;
+	transition: background 0.2s ease;
+}
+
+.add-drink-container button:hover {
+	background: #005fa3;
+}
+
+/* Changes indicator */
+.changed-row {
+	background: rgba(255, 193, 7, 0.1) !important;
+}
+
+.changed-row td {
+	background: rgba(255, 193, 7, 0.1) !important;
 }

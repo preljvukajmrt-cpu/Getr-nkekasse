@@ -42,7 +42,7 @@ $("admin-login-btn").onclick = async function() {
 		$("admin-main-section").style.display = "block";
 		loadAdminDrinks();
 		loadTimerStatus();
-		showTab("drinks");
+		showTab("password"); // Default to password tab
 	} else {
 		$("admin-login-message").textContent = data.error || "Login fehlgeschlagen.";
 		$("admin-login-message").style.color = "#ff6b6b";
@@ -51,11 +51,10 @@ $("admin-login-btn").onclick = async function() {
 
 // Tabs
 function showTab(tab) {
-	$("drinks-section").style.display = tab === "drinks" ? "block" : "none";
 	$("password-section").style.display = tab === "password" ? "block" : "none";
 	$("debug-section").style.display = tab === "debug" ? "block" : "none";
+	// Drinks section is always visible now
 }
-$("tab-drinks").onclick = () => showTab("drinks");
 $("tab-password").onclick = () => showTab("password");
 $("tab-debug").onclick = () => showTab("debug");
 
@@ -119,18 +118,181 @@ $("admin-logout-btn").onclick = function() {
 };
 
 
-// Getränke laden (Admin)
+// Getränke laden (Admin) - Neue Tabellen-Version
+let drinksData = [];
+let changedDrinks = new Set();
+
 async function loadAdminDrinks() {
-	const res = await fetch("/api/admin/drinks");
-	const drinks = await res.json();
-	const list = $("admin-drink-list");
-	list.innerHTML = "";
-	drinks.forEach(drink => {
-		const li = document.createElement("li");
-		li.textContent = drink.name + " (" + drink.price.toFixed(2) + " €) ";
-		list.appendChild(li);
+	try {
+		const res = await fetch("/api/admin/drinks");
+		drinksData = await res.json();
+		renderDrinksTable();
+	} catch (error) {
+		console.error('Fehler beim Laden der Getränke:', error);
+	}
+}
+
+function renderDrinksTable() {
+	const tbody = $("drinks-table-body");
+	tbody.innerHTML = "";
+	
+	drinksData.forEach(drink => {
+		const row = document.createElement("tr");
+		row.dataset.drinkId = drink.id;
+		
+		if (changedDrinks.has(drink.id)) {
+			row.classList.add('changed-row');
+		}
+		
+		row.innerHTML = `
+			<td class="editable-cell" data-field="name" data-drink-id="${drink.id}">${drink.name}</td>
+			<td class="editable-cell" data-field="price" data-drink-id="${drink.id}">${drink.price.toFixed(2)}</td>
+			<td>
+				<button class="action-btn" onclick="deleteDrink(${drink.id})">Löschen</button>
+			</td>
+		`;
+		
+		tbody.appendChild(row);
+	});
+	
+	// Add click handlers for editable cells
+	document.querySelectorAll('.editable-cell').forEach(cell => {
+		cell.addEventListener('click', startEdit);
+	});
+	
+	// Update save button state
+	updateSaveButtonState();
+}
+
+function updateSaveButtonState() {
+	const saveBtn = $("save-drinks-btn");
+	const hasChanges = changedDrinks.size > 0;
+	
+	saveBtn.disabled = !hasChanges;
+	saveBtn.textContent = hasChanges 
+		? `${changedDrinks.size} Änderung(en) speichern` 
+		: "Änderungen speichern";
+}
+
+function startEdit(event) {
+	const cell = event.target;
+	if (cell.classList.contains('editing')) return;
+	
+	const originalValue = cell.textContent;
+	const field = cell.dataset.field;
+	
+	cell.classList.add('editing');
+	
+	let input;
+	if (field === 'price') {
+		input = document.createElement('input');
+		input.type = 'number';
+		input.step = '0.01';
+		input.min = '0';
+		input.value = parseFloat(originalValue);
+	} else {
+		input = document.createElement('input');
+		input.type = 'text';
+		input.value = originalValue;
+	}
+	
+	cell.innerHTML = '';
+	cell.appendChild(input);
+	input.focus();
+	
+	function finishEdit() {
+		const newValue = input.value.trim();
+		const drinkId = parseInt(cell.dataset.drinkId);
+		
+		cell.classList.remove('editing');
+		
+		if (newValue !== originalValue && newValue !== '') {
+			// Update data
+			const drink = drinksData.find(d => d.id === drinkId);
+			if (drink) {
+				if (field === 'price') {
+					drink.price = parseFloat(newValue);
+					cell.textContent = parseFloat(newValue).toFixed(2);
+				} else {
+					drink.name = newValue;
+					cell.textContent = newValue;
+				}
+				
+				// Mark as changed
+				changedDrinks.add(drinkId);
+				cell.closest('tr').classList.add('changed-row');
+				updateSaveButtonState();
+			}
+		} else {
+			// Restore original value
+			cell.textContent = originalValue;
+		}
+	}
+	
+	input.addEventListener('blur', finishEdit);
+	input.addEventListener('keydown', (e) => {
+		if (e.key === 'Enter') {
+			e.preventDefault();
+			finishEdit();
+		} else if (e.key === 'Escape') {
+			e.preventDefault();
+			cell.classList.remove('editing');
+			cell.textContent = originalValue;
+		}
 	});
 }
+
+async function saveDrinksChanges() {
+	const changedDrinksData = drinksData.filter(drink => changedDrinks.has(drink.id));
+	
+	try {
+		const res = await fetch('/api/admin/drinks', {
+			method: 'PUT',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ drinks: changedDrinksData })
+		});
+		
+		const data = await res.json();
+		if (data.success) {
+			changedDrinks.clear();
+			renderDrinksTable();
+			alert('Änderungen erfolgreich gespeichert!');
+		} else {
+			alert('Fehler beim Speichern: ' + (data.error || 'Unbekannter Fehler'));
+		}
+	} catch (error) {
+		console.error('Fehler beim Speichern:', error);
+		alert('Fehler beim Speichern der Änderungen');
+	}
+}
+
+async function deleteDrink(drinkId) {
+	if (!confirm('Möchten Sie dieses Getränk wirklich löschen?')) {
+		return;
+	}
+	
+	try {
+		const res = await fetch(`/api/admin/drinks/id/${drinkId}`, {
+			method: 'DELETE'
+		});
+		
+		const data = await res.json();
+		if (data.success) {
+			// Remove from local data
+			drinksData = drinksData.filter(drink => drink.id !== drinkId);
+			changedDrinks.delete(drinkId);
+			renderDrinksTable();
+		} else {
+			alert('Fehler beim Löschen: ' + (data.error || 'Unbekannter Fehler'));
+		}
+	} catch (error) {
+		console.error('Fehler beim Löschen:', error);
+		alert('Fehler beim Löschen des Getränks');
+	}
+}
+
+// Save button handler
+$("save-drinks-btn").onclick = saveDrinksChanges;
 
 // Getränk hinzufügen
 $("add-drink-btn").onclick = async function() {
@@ -149,7 +311,7 @@ $("add-drink-btn").onclick = async function() {
 	if (data.success) {
 		$("new-drink-name").value = "";
 		$("new-drink-price").value = "";
-		loadAdminDrinks();
+		loadAdminDrinks(); // Reload table
 	} else {
 		alert(data.error || "Fehler beim Hinzufügen.");
 	}

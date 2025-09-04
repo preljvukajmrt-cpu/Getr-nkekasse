@@ -393,6 +393,44 @@ router.delete('/admin/drinks/:name', requireDatabase, async (req, res) => {
     }
 });
 
+// Update drink (for bulk updates)
+router.put('/admin/drinks', requireDatabase, async (req, res) => {
+    try {
+        const { drinks } = req.body;
+        if (!drinks || !Array.isArray(drinks)) {
+            return res.status(400).json({ error: 'Ungültige Getränke-Daten' });
+        }
+        
+        // Update each drink
+        for (const drink of drinks) {
+            if (!drink.id || !drink.name || drink.price === undefined) {
+                return res.status(400).json({ error: 'Unvollständige Getränke-Daten' });
+            }
+            await db.updateDrink(drink.id, drink.name, drink.price);
+        }
+        
+        res.json({ success: true });
+    } catch (error) {
+        console.error('[API] Fehler beim Aktualisieren der Getränke:', error);
+        res.status(500).json({ error: 'Fehler beim Aktualisieren der Getränke' });
+    }
+});
+
+// Delete drink by ID
+router.delete('/admin/drinks/id/:id', requireDatabase, async (req, res) => {
+    try {
+        const success = await db.deleteDrinkById(req.params.id);
+        if (success) {
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ error: 'Getränk nicht gefunden' });
+        }
+    } catch (error) {
+        console.error('[API] Fehler beim Löschen des Getränks:', error);
+        res.status(500).json({ error: 'Fehler beim Löschen des Getränks' });
+    }
+});
+
 // Timer-Status
 router.get('/admin/timer-status', requireDatabase, async (req, res) => {
     try {

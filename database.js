@@ -193,9 +193,10 @@ class DatabaseManager {
 
     // === DRINKS ===
     async getDrinks() {
-        const query = 'SELECT name, price FROM drinks ORDER BY name';
+        const query = 'SELECT id, name, price FROM drinks ORDER BY name';
         const result = await this.pool.query(query);
         return result.rows.map(row => ({
+            id: row.id,
             name: row.name,
             price: parseFloat(row.price)
         }));
@@ -209,6 +210,18 @@ class DatabaseManager {
     async deleteDrink(name) {
         const query = 'DELETE FROM drinks WHERE name = $1';
         const result = await this.pool.query(query, [name]);
+        return result.rowCount > 0;
+    }
+
+    async updateDrink(id, name, price) {
+        const query = 'UPDATE drinks SET name = $1, price = $2 WHERE id = $3';
+        const result = await this.pool.query(query, [name, price, id]);
+        return result.rowCount > 0;
+    }
+
+    async deleteDrinkById(id) {
+        const query = 'DELETE FROM drinks WHERE id = $1';
+        const result = await this.pool.query(query, [id]);
         return result.rowCount > 0;
     }
 
@@ -257,6 +270,8 @@ module.exports = {
     getDrinks: () => db.getDrinks(),
     addDrink: (name, price) => db.addDrink(name, price),
     deleteDrink: (name) => db.deleteDrink(name),
+    updateDrink: (id, name, price) => db.updateDrink(id, name, price),
+    deleteDrinkById: (id) => db.deleteDrinkById(id),
 
     // Admin operations
     getAdminSetting: (key) => db.getAdminSetting(key),
