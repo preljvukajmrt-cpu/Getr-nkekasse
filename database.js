@@ -85,7 +85,10 @@ class DatabaseManager {
     async getAllUsers() {
         const query = 'SELECT username, balance FROM users ORDER BY username';
         const result = await this.pool.query(query);
-        return result.rows;
+        return result.rows.map(row => ({
+            username: row.username,
+            balance: parseFloat(row.balance || 0)
+        }));
     }
 
     async getUserByUsername(username) {
@@ -97,7 +100,8 @@ class DatabaseManager {
     async getUserBalance(username) {
         const query = 'SELECT balance FROM users WHERE username = $1';
         const result = await this.pool.query(query, [username]);
-        return result.rows[0]?.balance || 0;
+        const balance = result.rows[0]?.balance || 0;
+        return parseFloat(balance);
     }
 
     async createUser(username, pin, balance = 0) {

@@ -296,6 +296,17 @@ function setupNumpad() {
 			// kleine visuelle Rückmeldung
 			b.classList.add('active');
 			setTimeout(() => b.classList.remove('active'), 120);
+			
+			// Automatischer Login wenn 4 Ziffern eingegeben wurden
+			if (pinInput.value.length === 4) {
+				console.log('[NUMPAD] 4 digits entered, triggering auto-login');
+				setTimeout(() => {
+					const loginBtn = document.getElementById('login-btn');
+					if (loginBtn) {
+						loginBtn.click();
+					}
+				}, 100); // Kurze Verzögerung für bessere UX
+			}
 		});
 	});
 	
@@ -325,6 +336,30 @@ function setupNumpad() {
 			if (pinDisplay) pinDisplay.innerHTML = '';
 			if (typeof resetPinClearTimer === 'function') resetPinClearTimer();
 			clear.classList.add('active'); setTimeout(() => clear.classList.remove('active'), 120);
+		});
+	}
+	
+	// Keyboard-Handler für PIN-Eingabe hinzufügen
+	if (pinInput && !pinInput._keyboardWired) {
+		pinInput._keyboardWired = true;
+		pinInput.addEventListener('input', () => {
+			// Begrenze auf 4 Zeichen und nur Ziffern
+			pinInput.value = pinInput.value.replace(/[^0-9]/g, '').slice(0, 4);
+			// Update masked display
+			if (pinDisplay) pinDisplay.innerHTML = pinInput.value.split('').map(()=>'•').join('');
+			// reset pin-clear timer on input
+			if (typeof resetPinClearTimer === 'function') resetPinClearTimer();
+			
+			// Automatischer Login wenn 4 Ziffern eingegeben wurden
+			if (pinInput.value.length === 4) {
+				console.log('[KEYBOARD] 4 digits entered, triggering auto-login');
+				setTimeout(() => {
+					const loginBtn = document.getElementById('login-btn');
+					if (loginBtn) {
+						loginBtn.click();
+					}
+				}, 100);
+			}
 		});
 	}
 	
@@ -644,9 +679,16 @@ $("delete-account-btn").onclick = async function() {
 async function loadBalance() {
 	const username = window.localStorage.getItem("username");
 	if (!username) return;
-	const res = await fetch(`/api/balance/${encodeURIComponent(username)}`);
-	const data = await res.json();
-	$("balance").textContent = data.balance.toFixed(2);
+	try {
+		const res = await fetch(`/api/balance/${encodeURIComponent(username)}`);
+		const data = await res.json();
+		const balance = parseFloat(data.balance) || 0;
+		$("balance").textContent = balance.toFixed(2);
+		console.log('[BALANCE] Loaded balance for', username, ':', balance);
+	} catch (error) {
+		console.error('[BALANCE] Error loading balance:', error);
+		$("balance").textContent = "0.00";
+	}
 }
 
 // Transfer modal handlers

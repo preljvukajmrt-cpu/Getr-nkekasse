@@ -43,14 +43,13 @@
           </div>
   </div>
       </div>
-      <div class="auth-row" style="display:flex;gap:0.8em;width:100%;align-items:center;justify-content:space-between;margin-top:0.0em;">
-        <div style="display:flex;gap:0.8em;flex:1;">
+      <div class="auth-row" style="display:flex;gap:0.8em;width:100%;align-items:center;justify-content:center;margin-top:0.0em;">
+        <div style="display:flex;gap:0.8em;max-width:520px;width:100%;">
           <button id="register-btn" class="auth-btn left-full" style="flex:1;padding:0.8em;">Registrieren</button>
           <button id="admin-btn" class="auth-btn left-full" style="flex:1;padding:0.8em;">Admin</button>
         </div>
-        <div style="width:260px;">
-          <button id="login-btn" class="auth-btn" style="width:100%;padding:0.8em;">Einloggen</button>
-        </div>
+        <!-- Hidden login button for programmatic use -->
+        <button id="login-btn" style="display:none;"></button>
       </div>
     </div>
   </div>
